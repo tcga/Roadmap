@@ -1,0 +1,11 @@
+s.execute("SELECT * WHERE { \
+  ?center tcga:ftp-name 'mdanderson.org' . \
+  ?platform tcga:parent ?center .\
+  ?dt tcga:parent ?platform .\
+  ?dt tcga:ftp-name ?name .\
+  }",
+  function(success, response){
+    response.forEach(function(triple){
+      console.log(triple.name.value);
+    });
+});
