@@ -7,10 +7,10 @@ Currently this is a catchall for infant TCGA Apps, designed to be compatible wit
 1. Within the TCGA Toolbox App, load the following module by URL: ``https://raw.github.com/drobbins/TCGApps/master/tcgapp.js``
 2. In the console, run ``TCGA.Scraper.scrape()``. This will take 2-5min depending on your connection.
 3. Use ``TCGA.Scraper.store.execute(...)`` to run SPARQL queries, where the following relationships are available:
-    * tcga:<uuid> tcga:parent tcga:<uuid> (points from a child directory to its parent)
-    * tcga:<uuid> tcga:type tcga:<type> (where type is one of the types below)
-    * tcga:<uuid> tcga:ftp-name <literal name> (the literal name of the object)
-    * tcga:<uuid> tcga:url <literal url> (the literal url of the object)
+    * ``tcga:<uuid> tcga:parent tcga:<uuid>`` (points from a child directory to its parent)
+    * ``tcga:<uuid> tcga:type tcga:<type>`` (where type is one of the types below)
+    * ``tcga:<uuid> tcga:ftp-name <literal name>`` (the literal name of the object)
+    * ``tcga:<uuid> tcga:url <literal url>`` (the literal url of the object)
     * See ``sample_query.sparql`` for a query discovering all data-types associated with MDAnderson
 
 ## Data Types
