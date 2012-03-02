@@ -15,16 +15,18 @@ Currently this is a catchall for infant TCGA Apps, designed to be compatible wit
 
 ## Data Types
 
-* "tcga:disease-study"
-* "tcga:center-type"
-* "tcga:center-domain"
-* "tcga:platform"
-* "tcga:data-type"
-* "tcga:archive"
-* "tcga:file"
+* tcga:disease-study
+* tcga:center-type
+* tcga:center-domain
+* tcga:platform
+* tcga:data-type
+* tcga:archive
+* tcga:file
 
 Data Types correspond to the directory structure:
+
 ``../disease-study/center-type/center-domain/platform/data-type/archive/file``
 
 e.g.
+
 ``.../gbm/cgcc/mdanderson.org/mda_rppa_core/protein_exp/mdanderson.org_GBM.MDA_RPPA_Core.Level_2.1.0.0/mdanderson.org_GBM.MDA_RPPA_Core.SuperCurve.Level_2.00da2077-778c-418a-9c92-01febd970ed8.txt``
