@@ -43,6 +43,10 @@
 
     db : null,
 
+    gui : '<div id="tcga-sparql" class="tab-pane"><h1>TCGA SPARQL Interface</h1><form class="" id="query"><div class="control-group"><label class="control-label" for="sparql">SPARQL Query</label><div class="controls"><textarea class="span6" id="sparql" rows="10">SELECT * WHERE { ?s ?p ?o . } LIMIT 25</textarea><span class="help-inline"><p>Enter your SPARQL Query and click submit. Example querys:</p></span></div></div><div class="form-actions"><button type="submit" class="btn btn-primary">Submit Query</button><button class="btn">Cancel</button></div></form><div id="message"></div><div id="results"></div></div>',
+
+    nav : '<li><a href="#tcga-sparql" data-toggle="tab">SPARQL</a></li>',
+
     types : {
       9 : "tcga:disease-study",
       10 : "tcga:center-type",
@@ -80,7 +84,7 @@
 
         var links = $("a", $(response)),
             link, index, children = [],
-            querystring = "@prefix tcga:<http://tcga/#> .\n";
+            querystring = "@prefix tcga:<http://tcga.github.com/#> .\n";
 
         links.each(function(index, link){
 
@@ -120,7 +124,7 @@
               console.error("Unable to load data for", target, ":", results);
             }
             if (success){
-              console.log("Parsed", target, "into", results, "triples");
+              console.log("Parsed", target.slice(81), "into", results, "triples");
             }
             // Depth first traversal of children
             if (success && children.length > 0){
@@ -243,14 +247,52 @@
   };
 
   //Load a few modules and bootstrap the application
-  TCGA.loadScript("https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js", function(error){
-    if (!error){
-      TCGA.loadScript("https://github.com/antoniogarrote/rdfstore-js/raw/master/dist/browser/rdf_store_min.js", function(error){
-        if(!error){
-          TCGAScraper.init();
-          TCGA.Scraper = TCGA.Scraper || TCGAScraper;
+  TCGA.loadScript("https://github.com/antoniogarrote/rdfstore-js/raw/master/dist/browser/rdf_store_min.js", function(error){
+    if(!error){
+      TCGAScraper.init();
+      $(TCGAScraper.gui).insertBefore("#end-of-content");
+      $(".nav-tabs").append($(TCGAScraper.nav));
+      var parseResults = function parseResults(resp){
+        var tableTemplate = "<table class='table'><thead><tr></tr></thead><tbody><tr></tr></tbody></table>";
+        if (typeof resp === "number") {
+          $("#message").addClass("alert").addClass("alert-success").text("Successfully added this many triples: "+resp);
         }
+        else if (typeof resp === 'object' && resp.length > 0) {
+          $("#results").html(tableTemplate);
+          var labels = Object.keys(resp[0]),
+              $heads = $("#results table thead tr").first(),
+              $body = $("#results table tbody");
+          labels.forEach(function(label){
+            $heads.append($("<th>").text(label));
+          });
+          resp.forEach(function(row){
+            var $rowhtml = $("<tr>");
+            labels.forEach(function(label){
+              $rowhtml.append($("<td>").text(row[label].value));
+            });
+            $body.append($rowhtml);
+          });
+        }
+      };
+
+      $("#query").submit(function(e){
+        var query = $("#sparql", this).val();
+        if(query !== ""){
+          try {
+            TCGAScraper.store.execute(query, function(succ, resp){
+              if(!succ) $("#message").addClass("alert").addClass("alert-error").text("Unable to execute query: " + query);
+              else {
+                parseResults(resp);
+              }
+            });
+          }
+          catch (e){
+            $("#message").addClass("alert").addClass("alert-error").text("Unable to parse query: " + query);
+          }
+        }
+        return false;
       });
+      TCGA.Scraper = TCGA.Scraper || TCGAScraper;
     }
   });
 })();
