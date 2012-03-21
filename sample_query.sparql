@@ -1,11 +1,13 @@
-s.execute("SELECT * WHERE { \
-  ?center tcga:ftp-name 'mdanderson.org' . \
-  ?platform tcga:parent ?center .\
-  ?dt tcga:parent ?platform .\
-  ?dt tcga:ftp-name ?name .\
-  }",
-  function(success, response){
-    response.forEach(function(triple){
-      console.log(triple.name.value);
-    });
-});
+SELECT ?dataname ?cancername WHERE {
+  ?center tcga:ftp-name 'mdanderson.org' .
+
+  ?platform tcga:parent ?center .
+  ?dt tcga:parent ?platform .
+  ?dt tcga:ftp-name ?dataname .
+
+  ?center tcga:parent ?centertype .
+  ?centertype tcga:parent ?cancer .
+  ?cancer tcga:ftp-name ?cancername
+}
+
+construct { ?resource a ?type . } where { ?resource tcga:type ?type . }

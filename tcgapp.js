@@ -1,11 +1,19 @@
-(function(){
+//
+// TCGA Scraper
+//
+// A TCGA Web Toolbox Module that scrapes the TCGA http/ftp site
+// into RDF triples and provides a query runner
+//
+//
+
+(function(TCGA){
   //Check for TCGA, fail if not found
   if (!TCGA) { throw "TCGA required"; }
 
   var uuid = function uuid(a){
-    //Function from https://gist.github.com/982883 (@jed)
-    return a?(a^Math.random()*16>>a/4).toString(16):([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,uuid);
-  };
+      //Function from https://gist.github.com/982883 (@jed)
+      return a?(a^Math.random()*16>>a/4).toString(16):([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,uuid);
+    };
 
   // Semaphore from https://gist.github.com/1296828
   var Sync = function(syncCount, callback, preventInstantCallbackExecution) {
@@ -43,9 +51,11 @@
 
     db : null,
 
-    gui : '<div id="tcga-sparql" class="tab-pane"><h1>TCGA SPARQL Interface</h1><form class="" id="query"><div class="control-group"><label class="control-label" for="sparql">SPARQL Query</label><div class="controls"><textarea class="span6" id="sparql" rows="10">SELECT * WHERE { ?s ?p ?o . } LIMIT 25</textarea><span class="help-inline"><p>Enter your SPARQL Query and click submit. Example querys:</p></span></div></div><div class="form-actions"><button type="submit" class="btn btn-primary">Submit Query</button><button class="btn">Cancel</button></div></form><div id="message"></div><div id="results"></div></div>',
+    gui : '<div class="span12"><h1>TCGA SPARQL Interface</h1></div><form class="span6" id="query"><div class="control-group"><label class="control-label" for="sparql">SPARQL Query</label><div class="controls"><textarea class="span6" id="sparql" rows="10">SELECT * WHERE { ?s ?p ?o . } LIMIT 25</textarea><span class="help-inline"><p>Enter your SPARQL Query and click submit.</p></span></div></div><div class="form-actions"><button type="submit" class="btn btn-primary">Submit Query</button> <button class="btn">Cancel</button></div></form><div id="controls" class="span6"><div id="message"></div></div><div class="span12" id="results"></div>',
 
-    nav : '<li><a href="#tcga-sparql" data-toggle="tab">SPARQL</a></li>',
+    nav : 'SPARQL',
+
+    name : 'tcga-sparql',
 
     types : {
       9 : "tcga:disease-study",
@@ -180,6 +190,7 @@
                 else {
                   console.log("Loaded", results, "triples from scrape on",
                     (new Date(mostRecentScrape.timestamp)).toISOString());
+                  if (cb) cb();
                 }
               });
             }
@@ -246,53 +257,48 @@
 
   };
 
-  //Load a few modules and bootstrap the application
-  TCGA.loadScript("https://github.com/antoniogarrote/rdfstore-js/raw/master/dist/browser/rdf_store_min.js", function(error){
-    if(!error){
-      TCGAScraper.init();
-      $(TCGAScraper.gui).insertBefore("#end-of-content");
-      $(".nav-tabs").append($(TCGAScraper.nav));
-      var parseResults = function parseResults(resp){
-        var tableTemplate = "<table class='table'><thead><tr></tr></thead><tbody><tr></tr></tbody></table>";
-        if (typeof resp === "number") {
-          $("#message").addClass("alert").addClass("alert-success").text("Successfully added this many triples: "+resp);
-        }
-        else if (typeof resp === 'object' && resp.length > 0) {
-          $("#results").html(tableTemplate);
-          var labels = Object.keys(resp[0]),
-              $heads = $("#results table thead tr").first(),
-              $body = $("#results table tbody");
-          labels.forEach(function(label){
-            $heads.append($("<th>").text(label));
-          });
-          resp.forEach(function(row){
-            var $rowhtml = $("<tr>");
-            labels.forEach(function(label){
-              $rowhtml.append($("<td>").text(row[label].value));
-            });
-            $body.append($rowhtml);
-          });
-        }
-      };
+  TCGAScraper.init();
+  TCGA.registerTab(TCGAScraper.name, TCGAScraper.nav, TCGAScraper.gui);
 
-      $("#query").submit(function(e){
-        var query = $("#sparql", this).val();
-        if(query !== ""){
-          try {
-            TCGAScraper.store.execute(query, function(succ, resp){
-              if(!succ) $("#message").addClass("alert").addClass("alert-error").text("Unable to execute query: " + query);
-              else {
-                parseResults(resp);
-              }
-            });
-          }
-          catch (e){
-            $("#message").addClass("alert").addClass("alert-error").text("Unable to parse query: " + query);
-          }
-        }
-        return false;
-      });
-      TCGA.Scraper = TCGA.Scraper || TCGAScraper;
+  var parseResults = function parseResults(resp){
+    var tableTemplate = "<table class='table'><thead><tr></tr></thead><tbody><tr></tr></tbody></table>";
+    if (typeof resp === "number") {
+      $("#message").addClass("alert").addClass("alert-success").text("Successfully added this many triples: "+resp);
     }
+    else if (typeof resp === 'object' && resp.length > 0) {
+      $("#results").html(tableTemplate);
+      var labels = Object.keys(resp[0]),
+          $heads = $("#results table thead tr").first(),
+          $body = $("#results table tbody");
+      labels.forEach(function(label){
+        $heads.append($("<th>").text(label));
+      });
+      resp.forEach(function(row){
+        var $rowhtml = $("<tr>");
+        labels.forEach(function(label){
+          $rowhtml.append($("<td>").text(row[label].value));
+        });
+        $body.append($rowhtml);
+      });
+    }
+  };
+
+  $("#query").submit(function(e){
+    var query = $("#sparql", this).val();
+    if(query !== ""){
+      try {
+        TCGAScraper.store.execute(query, function(succ, resp){
+          if(!succ) $("#message").addClass("alert").addClass("alert-error").text("Unable to execute query: " + query);
+          else {
+            parseResults(resp);
+          }
+        });
+      }
+      catch (e){
+        $("#message").addClass("alert").addClass("alert-error").text("Unable to parse query: " + query);
+      }
+    }
+    return false;
   });
-})();
+  TCGA.Scraper = TCGA.Scraper || TCGAScraper;
+})(TCGA);
