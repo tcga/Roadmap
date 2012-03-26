@@ -226,6 +226,7 @@
           dirReader, scrapes = [], readEntries;
 
       if (!that.fileSystem) {
+        that.postMessage("error", "Unable to load most recent scrape: filesystem not loaded");
         console.log("Unable to load most recent scrape: filesystem not loaded");
         return;
       }
@@ -240,9 +241,11 @@
           reader.onloadend = function(e){
             that.store.load("text/n3", this.result, function(succ, results){
               if (!succ) {
+                that.postMessage("error", ["Failed to load triples from scrape on", scrapeDate]);
                 console.error("Failed to load triples from scrape on", scrapeDate);
                 return;
               }
+              that.postMessage("success", ["Loaded", results, "triples scraped on", scrapeDate]);
               console.log("Loaded", results, "triples scraped on", scrapeDate);
             });
           };
@@ -282,13 +285,16 @@
           filename = ["tcgascrape-",now.valueOf(),".nt"].join("");
 
       if (!that.fileSystem) {
+        that.postMessage("error", "Unable to save scrape: filesystem not loaded");
         console.log("Unable to save scrape: filesystem not loaded");
         return;
       }
 
       that.store.graph(function(succ,graph){
         if (!succ) {
-          console.error("Unable to get graph for serialization"); return;
+          that.postMessage("error", "Unable to get graph for serialization");
+          console.error("Unable to get graph for serialization");
+          return;
         }
         that.fileSystem.root.getFile(filename, {create: true, exclusive: false}, function(fileEntry) {
           var url = fileEntry.toURL();
@@ -312,46 +318,61 @@
       });
     },
 
+    postMessage : function(type, message){
+      var $msg = $("#message").detach().empty(),
+          typeClass = "alert-"+type;
+
+      if (typeof message === "object") message = message.join(" ");
+
+      $msg.removeClass().addClass("alert").addClass(typeClass).text(message);
+
+      $msg.prependTo("#controls");
+    },
+
+    parseResults : function parseResults(resp){
+      var tableTemplate = "<table class='table'><thead><tr></tr></thead><tbody><tr></tr></tbody></table>";
+      if (typeof resp === "number") {
+        $("#message").addClass("alert-success").text("Successfully added this many triples: "+resp);
+      }
+      else if (typeof resp === 'object' && resp.length > 0) {
+        $("#results").html(tableTemplate);
+        var labels = Object.keys(resp[0]),
+            $heads = $("#results table thead tr").first(),
+            $body = $("#results table tbody");
+        labels.forEach(function(label){
+          $heads.append($("<th>").text(label));
+        });
+        resp.forEach(function(row){
+          var $rowhtml = $("<tr>");
+          labels.forEach(function(label){
+            $rowhtml.append($("<td>").text(row[label].value));
+          });
+          $body.append($rowhtml);
+        });
+      }
+    },
+
+    checkForRecentScrapes : function(){
+    }
+
+  };
 
   TCGAScraper.init();
   TCGA.registerTab(TCGAScraper.name, TCGAScraper.nav, TCGAScraper.gui);
-
-  var parseResults = function parseResults(resp){
-    var tableTemplate = "<table class='table'><thead><tr></tr></thead><tbody><tr></tr></tbody></table>";
-    if (typeof resp === "number") {
-      $("#message").addClass("alert").addClass("alert-success").text("Successfully added this many triples: "+resp);
-    }
-    else if (typeof resp === 'object' && resp.length > 0) {
-      $("#results").html(tableTemplate);
-      var labels = Object.keys(resp[0]),
-          $heads = $("#results table thead tr").first(),
-          $body = $("#results table tbody");
-      labels.forEach(function(label){
-        $heads.append($("<th>").text(label));
-      });
-      resp.forEach(function(row){
-        var $rowhtml = $("<tr>");
-        labels.forEach(function(label){
-          $rowhtml.append($("<td>").text(row[label].value));
-        });
-        $body.append($rowhtml);
-      });
-    }
-  };
 
   $("#query").submit(function(e){
     var query = $("#sparql", this).val();
     if(query !== ""){
       try {
         TCGAScraper.store.execute(query, function(succ, resp){
-          if(!succ) $("#message").addClass("alert").addClass("alert-error").text("Unable to execute query: " + query);
+          if(!succ) $("#message").addClass("alert-error").text("Unable to execute query: " + query);
           else {
-            parseResults(resp);
+            TCGAScraper.parseResults(resp);
           }
         });
       }
       catch (e){
-        $("#message").addClass("alert").addClass("alert-error").text("Unable to parse query: " + query);
+        $("#message").addClass("alert-error").text("Unable to parse query: " + query);
       }
     }
     return false;
