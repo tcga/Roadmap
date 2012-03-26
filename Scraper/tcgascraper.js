@@ -36,20 +36,72 @@
         if (typeof this.callback === "function") this.callback();
     };
 
+  var fsErrorCallback = function fsErrorCallback(e) {
+    var msg = '';
+    console.error(e);
+
+    switch (e.code) {
+      case FileError.QUOTA_EXCEEDED_ERR:
+        msg = 'QUOTA_EXCEEDED_ERR';
+        break;
+      case FileError.NOT_FOUND_ERR:
+        msg = 'NOT_FOUND_ERR';
+        break;
+      case FileError.SECURITY_ERR:
+        msg = 'SECURITY_ERR';
+        break;
+      case FileError.INVALID_MODIFICATION_ERR:
+        msg = 'INVALID_MODIFICATION_ERR';
+        break;
+      case FileError.INVALID_STATE_ERR:
+        msg = 'INVALID_STATE_ERR';
+        break;
+      default:
+        msg = 'Unknown Error';
+        break;
+    };
+
+    console.log('Error: ' + msg);
+  };
+
+  function toArray(list) {
+    return Array.prototype.slice.call(list || [], 0);
+  }
+
   var TCGAScraper = {
 
     init : function init(){
+
+      var that = this;
+
+      //Initialize the RDF Store
       this.store = new rdfstore.Store(function(store){
         store.registerDefaultProfileNamespaces();
         store.registerDefaultNamespace("tcga", "http://tcga.github.com/#");
+        console.log("Store ready");
       });
-      this.db = openDatabase('tcga', '1.0', 'Scrapes of the TCGA as text/n3', 500000000);
-      this.ensureTablePresent();
+
+      //Initialize the File System
+      window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
+      this.fileSystem = window.requestFileSystem(window.PERSISTENT, 500*1024*1024, function(newFs){
+        that.fileSystem = newFs;
+        console.log("Filesystem ready");
+      }, fsErrorCallback);
+
+      // Remove old databases
+      var db = openDatabase('tcga', '1.0', 'Scrapes of the TCGA as text/n3', 500000000);
+      var onerror = function(tx, err){ console.error(err); },
+          onsuccess function(tx, resp){ console.log("Removed old scrapes table"); db.close();});
+      db.transaction(function(tx){
+        tx.executeSql("DROP TABLE scrapes", [], onsuccess, onerror);
+      });
     },
 
     store : null,
 
-    db : null,
+    fileSystem : null,
+
+    scrapeList : null,
 
     gui : '<div class="span12"><h1>TCGA SPARQL Interface</h1></div><form class="span6" id="query"><div class="control-group"><label class="control-label" for="sparql">SPARQL Query</label><div class="controls"><textarea class="span6" id="sparql" rows="10">SELECT * WHERE { ?s ?p ?o . } LIMIT 25</textarea><span class="help-inline"><p>Enter your SPARQL Query and click submit.</p></span></div></div><div class="form-actions"><button type="submit" class="btn btn-primary">Submit Query</button> <button class="btn">Cancel</button></div></form><div id="controls" class="span6"><div id="message"></div></div><div class="span12" id="results"></div>',
 
@@ -121,7 +173,7 @@
           }
           querystring += 'tcga:ftp-name "'+name+'" .\n';
 
-          if (type !== that.types.file){// && target.split("/").length <= 8){
+          if (type !== that.types.file && target.split("/").length <= 8){
             children.push({store:store, url:url, parent:id});
           }
 
@@ -168,90 +220,92 @@
 
     load : function(callback){
       var that = this,
-          cb = typeof callback === 'function' ? callback : null;
-      that.db.transaction(function(tx){
-        tx.executeSql('SELECT * FROM scrapes ORDER BY timestamp DESC', [],
-          function(tx, results){
-            var today = (new Date()).valueOf(),
-                mostRecentScrape = results.rows.item(0),
-                dayInMilliseconds = 86400000,
-                weekInMilliseconds = 7 * dayInMilliseconds;
-            if ( mostRecentScrape.timestamp < today - weekInMilliseconds){
-              console.log("Most recent scrape out of date, starting new scrape...");
-              that.scrape();
-            }
-            else{
-              that.store.load("text/n3", mostRecentScrape.scrape, function(success, results){
-                if (!success) {
-                  console.log("Unable to load scrape from",(new Date(mostRecentScrape.timestamp)).toISOString(),
-                    ". Starting new scrape...");
-                  that.scrape();
-                }
-                else {
-                  console.log("Loaded", results, "triples from scrape on",
-                    (new Date(mostRecentScrape.timestamp)).toISOString());
-                  if (cb) cb();
-                }
-              });
-            }
-          },
-          that._onSqlError
-        );
+          dirReader, scrapes = [], readEntries;
+
+      if (!that.fileSystem) {
+        console.log("Unable to load most recent scrape: filesystem not loaded");
+        return;
+      }
+
+      that.getScrapeList(function(scrapes){
+        var scrape = scrapes[scrapes.length-1], //Get the most recent scrape
+            scrapeDate = new Date(parseInt(scrape.name.match(/-([0-9]+)\./)[1]));
+        console.log("Loading scrape from:", scrapeDate);
+        scrape.file(function(scrapefile){
+          var reader = new FileReader();
+
+          reader.onloadend = function(e){
+            that.store.load("text/n3", this.result, function(succ, results){
+              if (!succ) {
+                console.error("Failed to load triples from scrape on", scrapeDate);
+                return;
+              }
+              console.log("Loaded", results, "triples scraped on", scrapeDate);
+            });
+          }
+
+          reader.readAsText(scrapefile);
+        }, fsErrorCallback);
       });
+    },
+
+    getScrapeList : function(callback){
+      var that = this,
+          dirReader, scrapes = [], readEntries;
+
+      if (!that.fileSystem) {
+        console.log("Unable get scrape list: filesystem not loaded");
+        return;
+      }
+
+      dirReader = that.fileSystem.root.createReader();
+      readEntries = function() {
+         dirReader.readEntries (function(results) {
+          if (!results.length) {
+            that.scrapeList = scrapes;
+            if (callback && typeof callback === 'function') callback(scrapes);
+          } else {
+            scrapes = scrapes.concat(toArray(results));
+            readEntries();
+          }
+        }, fsErrorCallback);
+      };
+      readEntries(); // Start reading dirs.
     },
 
     save : function(callback){
       var that = this,
-          cb = typeof callback === 'function' ? callback : null,
-          today = new Date();
-      that.store.graph(function(success, graph){
-        if (!success) console.log("Unable to serialize graph. Scrape not saved.");
-        else{
-          var graphAsNT = graph.toNT();
-          that.db.transaction(function(tx){
-            tx.executeSql("INSERT INTO scrapes (timestamp, scrape) VALUES (?, ?)", [today.valueOf(), graphAsNT],
-              function(tx, results){
-                console.log("Saved scrape from", today.toISOString());
-              },
-              that._onSqlError
-            );
-          });
-        }
-      });
-    },
+          now = new Date(),
+          filename = ["tcgascrape-",now.valueOf(),".nt"].join("");
 
-    _onSqlError : function(tx, error){
-      if (error.code === 5 && error.message.match(/no such table/)){
+      if (!that.fileSystem) {
+        console.log("Unable to save scrape: filesystem not loaded");
         return;
       }
-      else {
-        console.error("Unable to perform SQL transaction", error);
-      }
-    },
 
-    ensureTablePresent : function(){
-      var createTable = function(){
-            that.db.transaction(function(tx) {
-              tx.executeSql("CREATE TABLE scrapes (timestamp REAL UNIQUE, scrape TEXT)", [],
-                  function(tx) { console.log('Table for storing scrapes created'); },
-                  function(err) { console.log(err);});
-            });
-          };
-          that = this;
-      that.db.transaction(function(tx) {
-        tx.executeSql("SELECT timestamp FROM scrapes", [],
-            function(tx, results) {console.log("Table exists");},
-            function(tx, err) { createTable();}
-        );
-      });
-    },
+      that.store.graph(function(succ,graph){
+        if (!succ) {
+          console.error("Unable to get graph for serialization"); return;
+        }
+        that.fileSystem.root.getFile(filename, {create: true, exclusive: false}, function(fileEntry) {
+          var url = fileEntry.toURL();
+          fileEntry.createWriter(function(fileWriter) {
 
-    recreateTable : function(){
-      var onerror = function(tx, err){ console.error(err); },
-          that = this,
-          db = this.db;
-      db.transaction(function(tx){
-        tx.executeSql("DROP TABLE scrapes", [], that.ensureTablePresent.bind(that), onerror);
+            fileWriter.onwriteend = function(e) {
+              console.log('Saved scrape from', now.toString(), 'to', url);
+              if (callback && typeof callback === 'function') callback();
+            };
+
+            fileWriter.onerror = function(e) {
+              console.log('Write failed: ' + e.toString());
+            };
+
+            var bb = new window.WebKitBlobBuilder(); // Note: window.WebKitBlobBuilder in Chrome 12.
+            bb.append(graph.toNT());
+            fileWriter.write(bb.getBlob('text/plain'));
+
+          });
+        }, fsErrorCallback);
       });
     }
 
