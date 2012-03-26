@@ -59,7 +59,7 @@
       default:
         msg = 'Unknown Error';
         break;
-    };
+    }
 
     console.log('Error: ' + msg);
   };
@@ -90,8 +90,11 @@
 
       // Remove old databases
       var db = openDatabase('tcga', '1.0', 'Scrapes of the TCGA as text/n3', 500000000);
-      var onerror = function(tx, err){ console.error(err); },
-          onsuccess function(tx, resp){ console.log("Removed old scrapes table"); db.close();});
+      var onerror = function(tx, err){
+            if (!err.message.match(/no such table/)) console.error(err);
+            else db = null;
+          },
+          onsuccess = function(tx, resp){ console.log("Removed old scrapes table"); db = null;};
       db.transaction(function(tx){
         tx.executeSql("DROP TABLE scrapes", [], onsuccess, onerror);
       });
@@ -229,7 +232,7 @@
 
       that.getScrapeList(function(scrapes){
         var scrape = scrapes[scrapes.length-1], //Get the most recent scrape
-            scrapeDate = new Date(parseInt(scrape.name.match(/-([0-9]+)\./)[1]));
+            scrapeDate = new Date(parseInt(scrape.name.match(/-([0-9]+)\./)[1],10));
         console.log("Loading scrape from:", scrapeDate);
         scrape.file(function(scrapefile){
           var reader = new FileReader();
@@ -307,9 +310,8 @@
           });
         }, fsErrorCallback);
       });
-    }
+    },
 
-  };
 
   TCGAScraper.init();
   TCGA.registerTab(TCGAScraper.name, TCGAScraper.nav, TCGAScraper.gui);
