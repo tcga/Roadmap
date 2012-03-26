@@ -245,7 +245,7 @@
               }
               console.log("Loaded", results, "triples scraped on", scrapeDate);
             });
-          }
+          };
 
           reader.readAsText(scrapefile);
         }, fsErrorCallback);
