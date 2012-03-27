@@ -106,14 +106,16 @@
         if(query !== ""){
           try {
             TCGAScraper.store.execute(query, function(succ, resp){
-              if(!succ) $("#message").addClass("alert-error").text("Unable to execute query: " + query);
+              if(!succ){
+                that.postMessage("error", "Unable to execute query: " + query);
+              }
               else {
                 TCGAScraper.parseResults(resp);
               }
             });
           }
           catch (e){
-            $("#message").addClass("alert-error").text("Unable to parse query: " + query);
+            that.postMessage("error", "Unable to execute query: " + query);
           }
         }
         return false;
@@ -248,7 +250,6 @@
           dirReader, scrapes = [], readEntries;
 
       if (!that.fileSystem) {
-        that.postMessage("error", "Unable to load most recent scrape: filesystem not loaded");
         console.log("Unable to load most recent scrape: filesystem not loaded");
         return;
       }
@@ -315,7 +316,6 @@
 
       that.store.graph(function(succ,graph){
         if (!succ) {
-          that.postMessage("error", "Unable to get graph for serialization");
           console.error("Unable to get graph for serialization");
           return;
         }
@@ -324,7 +324,9 @@
           fileEntry.createWriter(function(fileWriter) {
 
             fileWriter.onwriteend = function(e) {
+              that.postMessage("success", ['Saved scrape from', now.toString(), 'to', url]);
               console.log('Saved scrape from', now.toString(), 'to', url);
+              that.checkForRecentScrapes();
               if (callback && typeof callback === 'function') callback();
             };
 
