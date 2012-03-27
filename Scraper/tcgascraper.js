@@ -130,7 +130,7 @@
 
     scrapeList : null,
 
-    gui : '<div class="span12"><h1>TCGA SPARQL Interface</h1></div><form class="span6" id="query"><div class="control-group"><div class="controls"><textarea class="span6" id="sparql" rows="10">SELECT * WHERE { ?s ?p ?o . } LIMIT 25</textarea><span class="help-inline"><p>Enter your SPARQL Query and click submit.</p></span></div></div><div class="form-actions"><button type="submit" class="btn btn-primary">Submit Query</button> <button class="btn">Cancel</button></div></form><div id="controls" class="span6"><div id="message"></div></div><div class="span12" id="results"></div>',
+    gui : '<div class="span12"><h1>TCGA SPARQL Interface</h1></div><form class="span6" id="query"><div class="control-group"><div class="controls"><textarea class="span6" id="sparql" rows="10">SELECT * WHERE { ?s ?p ?o . } LIMIT 25</textarea><span class="help-inline"><p>Enter your SPARQL Query and click submit.</p></span></div></div><div class="form-actions"><button type="submit" class="btn btn-primary">Submit Query</button> <button class="btn">Cancel</button></div></form><div id="controls" class="span6"><div id="message"></div><div id="scrapelist"></div></div><div class="span12" id="results"></div>',
 
     nav : 'SPARQL',
 
@@ -200,7 +200,7 @@
           }
           querystring += 'tcga:ftp-name "'+name+'" .\n';
 
-          if (type !== that.types.file && target.split("/").length <= 8){
+          if (type !== that.types.file){// && target.split("/").length <= 8){
             children.push({store:store, url:url, parent:id});
           }
 
@@ -324,7 +324,7 @@
           fileEntry.createWriter(function(fileWriter) {
 
             fileWriter.onwriteend = function(e) {
-              that.postMessage("success", ['Saved scrape from', now.toString(), 'to', url]);
+              that.postMessage("success", ['Saved scrape from', now.toString()]);
               console.log('Saved scrape from', now.toString(), 'to', url);
               that.checkForRecentScrapes();
               if (callback && typeof callback === 'function') callback();
@@ -379,17 +379,21 @@
 
     checkForRecentScrapes : function(){
       var that=this;
+      $("#scrapelist").empty();
       that.getScrapeList(function(scrapes){
-        if (scrapes){
-          var scrape = scrapes[scrapes.length-1], //Get the most recent scrape
-              scrapeDate = new Date(parseInt(scrape.name.match(/-([0-9]+)\./)[1],10)),
+        scrapes.forEach(function(scrape){
+          var scrapeDate = new Date(parseInt(scrape.name.match(/-([0-9]+)\./)[1],10)),
               scrapeDateString = scrapeDate.toLocaleString().split(" ").slice(0,5).join(" "),
               loader = $("<p>"),
-              loadButton = $("<a class='btn btn-primary btn-mini'>Load</a>").bind("click",(that.load).bind(that));
+              loadButton = $("<a class='btn btn-primary btn-mini'>Load</a>").bind("click",(that.load).bind(that)),
+              delButton = $("<a class='btn btn-danger btn-mini'>Delete</a>").bind("click",function(){
+                scrape.remove();
+                that.checkForRecentScrapes();
+              }),
               downloadButton = $("<a class='btn btn-mini'>Download</a>").attr('href', scrape.toURL());
-          loader.append("Scrape found from ", scrapeDateString, " ", loadButton, " ", downloadButton)
-            .appendTo("#controls");
-        }
+          loader.append("Scrape found from ", scrapeDateString, " ", loadButton, " ", downloadButton, " ", delButton)
+            .appendTo("#scrapelist");
+        });
       });
     }
 
