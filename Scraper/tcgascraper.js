@@ -86,6 +86,7 @@
       this.fileSystem = window.requestFileSystem(window.PERSISTENT, 500*1024*1024, function(newFs){
         that.fileSystem = newFs;
         console.log("Filesystem ready");
+        that.checkForRecentScrapes();
       }, fsErrorCallback);
 
       // Remove old databases
@@ -98,6 +99,27 @@
       db.transaction(function(tx){
         tx.executeSql("DROP TABLE scrapes", [], onsuccess, onerror);
       });
+
+      // Init the UI
+      $("#query").submit(function(e){
+        var query = $("#sparql", this).val();
+        if(query !== ""){
+          try {
+            TCGAScraper.store.execute(query, function(succ, resp){
+              if(!succ) $("#message").addClass("alert-error").text("Unable to execute query: " + query);
+              else {
+                TCGAScraper.parseResults(resp);
+              }
+            });
+          }
+          catch (e){
+            $("#message").addClass("alert-error").text("Unable to parse query: " + query);
+          }
+        }
+        return false;
+      });
+      $("<p>").append($("<a class='btn btn-primary'>Start new Scrape</a>").click((that.scrape).bind(that)))
+        .appendTo("#controls");
     },
 
     store : null,
@@ -233,7 +255,8 @@
 
       that.getScrapeList(function(scrapes){
         var scrape = scrapes[scrapes.length-1], //Get the most recent scrape
-            scrapeDate = new Date(parseInt(scrape.name.match(/-([0-9]+)\./)[1],10));
+            scrapeDate = new Date(parseInt(scrape.name.match(/-([0-9]+)\./)[1],10)),
+            scrapeDateString = scrapeDate.toLocaleString().split(" ").slice(0,5).join(" ");
         console.log("Loading scrape from:", scrapeDate);
         scrape.file(function(scrapefile){
           var reader = new FileReader();
@@ -241,11 +264,11 @@
           reader.onloadend = function(e){
             that.store.load("text/n3", this.result, function(succ, results){
               if (!succ) {
-                that.postMessage("error", ["Failed to load triples from scrape on", scrapeDate]);
+                that.postMessage("error", ["Failed to load triples from scrape on", scrapeDateString]);
                 console.error("Failed to load triples from scrape on", scrapeDate);
                 return;
               }
-              that.postMessage("success", ["Loaded", results, "triples scraped on", scrapeDate]);
+              that.postMessage("success", ["Loaded", results, "triples scraped on", scrapeDateString]);
               console.log("Loaded", results, "triples scraped on", scrapeDate);
             });
           };
@@ -353,29 +376,25 @@
     },
 
     checkForRecentScrapes : function(){
+      var that=this;
+      that.getScrapeList(function(scrapes){
+        if (scrapes){
+          var scrape = scrapes[scrapes.length-1], //Get the most recent scrape
+              scrapeDate = new Date(parseInt(scrape.name.match(/-([0-9]+)\./)[1],10)),
+              scrapeDateString = scrapeDate.toLocaleString().split(" ").slice(0,5).join(" "),
+              loader = $("<p>"),
+              loadButton = $("<a class='btn btn-primary btn-mini'>Load</a>").bind("click",(that.load).bind(that));
+              downloadButton = $("<a class='btn btn-mini'>Download</a>").attr('href', scrape.toURL());
+          loader.append("Scrape found from ", scrapeDateString, " ", loadButton, " ", downloadButton)
+            .appendTo("#controls");
+        }
+      });
     }
 
   };
 
-  TCGAScraper.init();
   TCGA.registerTab(TCGAScraper.name, TCGAScraper.nav, TCGAScraper.gui);
-
-  $("#query").submit(function(e){
-    var query = $("#sparql", this).val();
-    if(query !== ""){
-      try {
-        TCGAScraper.store.execute(query, function(succ, resp){
-          if(!succ) $("#message").addClass("alert-error").text("Unable to execute query: " + query);
-          else {
-            TCGAScraper.parseResults(resp);
-          }
-        });
-      }
-      catch (e){
-        $("#message").addClass("alert-error").text("Unable to parse query: " + query);
-      }
-    }
-    return false;
-  });
+  TCGAScraper.init();
   TCGA.Scraper = TCGA.Scraper || TCGAScraper;
+
 })(TCGA);
