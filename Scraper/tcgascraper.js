@@ -71,7 +71,6 @@
   var TCGAScraper = {
 
     init : function init(){
-
       var that = this;
 
       //Initialize the RDF Store
@@ -130,7 +129,7 @@
 
     scrapeList : null,
 
-    gui : '<div class="span12"><h1>TCGA SPARQL Interface</h1></div><form class="span6" id="query"><div class="control-group"><div class="controls"><textarea class="span6" id="sparql" rows="10">SELECT * WHERE { ?s ?p ?o . } LIMIT 25</textarea><span class="help-inline"><p>Enter your SPARQL Query and click submit.</p></span></div></div><div class="form-actions"><button type="submit" class="btn btn-primary">Submit Query</button> <button class="btn">Cancel</button></div></form><div id="controls" class="span6"><div id="message"></div><div id="scrapelist"></div></div><div class="span12" id="results"></div>',
+    gui : '<div class="span12"><h1>TCGA SPARQL Interface</h1></div><form class="span6" id="query"><div class="control-group"><div class="controls"><textarea class="span6" id="sparql" rows="10">SELECT * WHERE { ?s ?p ?o . } LIMIT 25</textarea><span class="help-inline"><p>Enter our SPARQL Query and click submit.</p></span></div></div><div class="form-actions"><button type="submit" class="btn btn-primary">Submit Query</button> <button class="btn">Cancel</button></div></form><div id="controls" class="span6"><div id="message"></div><div id="scrapelist"></div></div><div class="span12" id="results"></div>',
 
     nav : 'SPARQL',
 
@@ -145,6 +144,15 @@
       14 : "tcga:archive",
       15 : "tcga:file",
       file : "tcga:file"
+    },
+
+    startSpinner : function(el){
+      var spin = $("<img>").attr("src", "http://www.fbi.gov/spinner.gif");
+      $(el).after(" ", $("<i class='spinner icon-blob'>").html(spin));
+    },
+
+    endSpinner : function(el){
+      $("i.spinner", $(el).parent()).remove();
     },
 
     scrape : function(options){
@@ -163,6 +171,8 @@
       if (!opts.url) console.log("Beginning scrape of: ",target);
 
       if (!that.scraping) that.scraping = true;
+
+      if (!opts.parent) that.startSpinner("a.btn-primary:contains('Start new Scrape')");
 
       TCGA.get(target, function(error, response){
 
@@ -200,7 +210,7 @@
           }
           querystring += 'tcga:ftp-name "'+name+'" .\n';
 
-          if (type !== that.types.file){// && target.split("/").length <= 8){
+          if (type !== that.types.file && target.split("/").length <= 9){
             children.push({store:store, url:url, parent:id});
           }
 
@@ -326,6 +336,7 @@
             fileWriter.onwriteend = function(e) {
               that.postMessage("success", ['Saved scrape from', now.toString()]);
               console.log('Saved scrape from', now.toString(), 'to', url);
+              that.endSpinner("a.btn-primary:contains('Start new Scrape')");
               that.checkForRecentScrapes();
               if (callback && typeof callback === 'function') callback();
             };
