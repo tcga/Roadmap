@@ -74,9 +74,10 @@
       var that = this;
 
       //Initialize the RDF Store
-      this.store = new rdfstore.Store(function(store){
+      rdfstore.connect("lib/rdf_store.js",function(success, store){
         store.registerDefaultProfileNamespaces();
         store.registerDefaultNamespace("tcga", "http://tcga.github.com/#");
+        that.store = store;
         console.log("Store ready");
       });
 
@@ -155,12 +156,16 @@
       $("i.spinner", $(el).parent()).remove();
     },
 
+    knownEntities : {},
+
+    knownSubjects : { length:0 },
+
     scrape : function(options){
       var opts = options || {},
           that = this, // Capture context for use in closures
           target = opts.url || "https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/",
           store = opts.store || this.store,
-          parent = opts.parent,
+          parent = opts.parent || {},
           callback = opts.callback || (!opts.parent && (this.save).bind(that)) || null;
 
       if (!store) {
@@ -203,15 +208,32 @@
           // TODO when should this NOT be done (e.g. files)
           if(type !== that.types.file) name = name.slice(0,-1); // Remove the trailing "/"
 
+          // Check for this objects presence in known objects
+          if(type !== that.types.file && type !== that.types[14]){
+            if (!that.knownEntities[name]) that.knownEntities[name] = id;
+            else id = that.knownEntities[name];
+          }
+
+          // Add this entity to known subjects
+          var subject = 'http://tcga.github.com/#'+id;
+          if(!that.knownSubjects[subject]){
+            that.knownSubjects[subject] = true;
+            that.knownSubjects.length += 1;
+          }
+
           querystring += 'tcga:'+id+' tcga:url "'+url+'" ;\n';
           querystring += "tcga:type "+type+" ;\n";
-          if(parent){
-            querystring += "tcga:parent tcga:"+parent+" ;\n";
+          if (type === that.types.file){
+            var ancestor;
+            for (ancestor in parent){
+              querystring += ancestor+" "+parent[ancestor]+" ;\n";
+            }
           }
           querystring += 'tcga:ftp-name "'+name+'" .\n';
 
-          if (type !== that.types.file && target.split("/").length <= 9){
-            children.push({store:store, url:url, parent:id});
+          if (type !== that.types.file){// && target.split("/").length <= 9){// && (target.split("/").length > 9 || name > "stad")){ 
+            parent[type] = "tcga:"+id;
+            children.push({store:store, url:url, parent:parent});
           }
 
         });
@@ -324,34 +346,67 @@
         return;
       }
 
-      that.store.graph(function(succ,graph){
-        if (!succ) {
-          console.error("Unable to get graph for serialization");
-          return;
-        }
-        that.fileSystem.root.getFile(filename, {create: true, exclusive: false}, function(fileEntry) {
-          var url = fileEntry.toURL();
-          fileEntry.createWriter(function(fileWriter) {
-
-            fileWriter.onwriteend = function(e) {
-              that.postMessage("success", ['Saved scrape from', now.toString()]);
-              console.log('Saved scrape from', now.toString(), 'to', url);
-              that.endSpinner("a.btn-primary:contains('Start new Scrape')");
-              that.checkForRecentScrapes();
-              if (callback && typeof callback === 'function') callback();
+      that.fileSystem.root.getFile(filename, {create: true, exclusive: false}, function(fileEntry) {
+        var url = fileEntry.toURL(),
+            subject,
+            numRows = that.knownSubjects.length,
+            savedRows = 0,
+            rowCallback = function(){
+              if (++savedRows >= numRows){
+                console.log("savedRows:", savedRows, "numRows", numRows);
+                that.postMessage("success", ['Saved scrape from', now.toString()]);
+                console.log('Saved scrape from', now.toString(), 'to', url);
+                that.endSpinner("a.btn-primary:contains('Start new Scrape')");
+                that.checkForRecentScrapes();
+                if (callback && typeof callback === 'function') callback();
+              }
             };
+        console.log("Beginning serialization of", numRows, "rows.");
+        for (subject in that.knownSubjects){
+          if (subject === "length") continue;
+          //if (!that.knownSubjects.hasOwnProperty[subject]) continue;
+        //that.store.execute("select ?subject where {?subject ?p ?o .}", function(succ, rows){
+          that.store.node(subject, function(succ, graph){
+            if (!succ) {
+              console.error("Unable to get graph for serialization");
+              return;
+            }
+            fileEntry.createWriter(function(fileWriter) {
 
-            fileWriter.onerror = function(e) {
-              console.log('Write failed: ' + e.toString());
-            };
+              var numTriples = graph.triples.length,
+                  savedTriples = 0,
+                  batchSize = 10000;
 
-            var bb = new window.WebKitBlobBuilder(); // Note: window.WebKitBlobBuilder in Chrome 12.
-            bb.append(graph.toNT());
-            fileWriter.write(bb.getBlob('text/plain'));
+              var writeBatch = function(batchSize){
+                var start = savedTriples,
+                    end = start + batchSize,
+                    i,
+                    bb = new window.WebKitBlobBuilder(); // Note: window.WebKitBlobBuilder in Chrome 12.
+                for (i = start; i < end && i < numTriples-1 ; i++){
+                  bb.append(graph.triples[i].toString());
+                }
+                fileWriter.write(bb.getBlob('text/plain'));
+              };
 
+              fileWriter.onwriteend = function(e) {
+                savedTriples += batchSize;
+                if (savedTriples >= numTriples){
+                  rowCallback();
+                }
+                else writeBatch(batchSize);
+              };
+
+              fileWriter.onerror = function(e) {
+                console.log('Write failed: ' + e.toString());
+              };
+
+              writeBatch(batchSize);
+
+            });
           });
-        }, fsErrorCallback);
-      });
+        //});
+        }
+      }, fsErrorCallback);
     },
 
     postMessage : function(type, message){
@@ -398,7 +453,7 @@
               loader = $("<p>"),
               loadButton = $("<a class='btn btn-primary btn-mini'>Load</a>").bind("click",(that.load).bind(that)),
               delButton = $("<a class='btn btn-danger btn-mini'>Delete</a>").bind("click",function(){
-                scrape.remove();
+                scrape.remove(function(){}, function(){});
                 that.checkForRecentScrapes();
               }),
               downloadButton = $("<a class='btn btn-mini'>Download</a>").attr('href', scrape.toURL());
