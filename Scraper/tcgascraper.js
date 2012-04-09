@@ -7,16 +7,20 @@
 //
 
 (function(TCGA){
-  //Check for TCGA, fail if not found
+
+  var uuid, Sync, fsErrorCallback, Scraper, toArray;
+
+  // Check for requirements, fail if not found
   if (!TCGA) { throw "TCGA required"; }
 
-  var uuid = function uuid(a){
+  // Generate a UUID
+  uuid = function uuid(a){
       //Function from https://gist.github.com/982883 (@jed)
       return a?(a^Math.random()*16>>a/4).toString(16):([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,uuid);
-    };
+  };
 
   // Semaphore from https://gist.github.com/1296828
-  var Sync = function(syncCount, callback, preventInstantCallbackExecution) {
+  Sync = function(syncCount, callback, preventInstantCallbackExecution) {
       this.syncCount = syncCount;
       this.callback = callback;
       if(preventInstantCallbackExecution === false && this.syncCount === 0) {
@@ -36,7 +40,8 @@
       if (typeof this.callback === "function") this.callback();
   };
 
-  var fsErrorCallback = function fsErrorCallback(e) {
+  // Generic onerror for filesystem calls
+  fsErrorCallback = function fsErrorCallback(e) {
     var msg = '';
     console.error(e);
 
@@ -64,29 +69,29 @@
     console.log('Error: ' + msg);
   };
 
-  function toArray(list) {
+  // Utility function for converting
+  toArray = function toArray(list) {
     return Array.prototype.slice.call(list || [], 0);
-  }
+  };
 
-  var TCGAScraper = {
+  Scraper = {
 
     init : function init(){
-      var that = this;
 
       //Initialize the RDF Store
-      rdfstore.connect("lib/rdf_store.js",function(success, store){
+      rdfstore.connect("lib/rdf_store.js", function(success, store){
         store.registerDefaultProfileNamespaces();
         store.registerDefaultNamespace("tcga", "http://tcga.github.com/#");
-        that.store = store;
+        Scraper.store = store;
         console.log("Store ready");
       });
 
       //Initialize the File System
       window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
-      this.fileSystem = window.requestFileSystem(window.PERSISTENT, 500*1024*1024, function(newFs){
-        that.fileSystem = newFs;
+      Scraper.fileSystem = window.requestFileSystem(window.PERSISTENT, 500*1024*1024, function(newFs){
+        Scraper.fileSystem = newFs;
         console.log("Filesystem ready");
-        that.checkForRecentScrapes();
+        Scraper.checkForRecentScrapes();
       }, fsErrorCallback);
 
       // Remove old databases
@@ -107,7 +112,7 @@
           try {
             TCGAScraper.store.execute(query, function(succ, resp){
               if(!succ){
-                that.postMessage("error", "Unable to execute query: " + query);
+                Scraper.postMessage("error", "Unable to execute query: " + query);
               }
               else {
                 TCGAScraper.parseResults(resp);
@@ -115,12 +120,12 @@
             });
           }
           catch (e){
-            that.postMessage("error", "Unable to execute query: " + query);
+            Scraper.postMessage("error", "Unable to execute query: " + query);
           }
         }
         return false;
       });
-      $("<p>").append($("<a class='btn btn-primary'>Start new Scrape</a>").click((that.scrape).bind(that)))
+      $("<p>").append($("<a class='btn btn-primary'>Start new Scrape</a>").click(Scraper.scrape))
         .appendTo("#controls");
     },
 
@@ -162,11 +167,10 @@
 
     scrape : function(options){
       var opts = options || {},
-          that = this, // Capture context for use in closures
           target = opts.url || "https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/",
-          store = opts.store || this.store,
+          store = opts.store || Scraper.store,
           parent = opts.parent || {},
-          callback = opts.callback || (!opts.parent && (this.save).bind(that)) || null;
+          callback = opts.callback || (!opts.parent && Scraper.save) || null;
 
       if (!store) {
         console.error("RDFStore required");
@@ -175,9 +179,9 @@
 
       if (!opts.url) console.log("Beginning scrape of: ",target);
 
-      if (!that.scraping) that.scraping = true;
+      if (!Scraper.scraping) Scraper.scraping = true;
 
-      if (!opts.parent) that.startSpinner("a.btn-primary:contains('Start new Scrape')");
+      if (!opts.parent) Scraper.startSpinner("a.btn-primary:contains('Start new Scrape')");
 
       TCGA.get(target, function(error, response){
 
@@ -195,7 +199,7 @@
           var name = $(link).attr('href'),
               id = uuid(),
               url = target + name,
-              type = that.types[target.split("/").length];
+              type = Scraper.types[target.split("/").length];
 
           // Filter out links beginning with ? or /
           // (i.e. column headers and parent links)
@@ -203,35 +207,37 @@
 
           // Things with extensions are files (e.g. reallylong_name.tiff)
           // TODO Use MIME types to determine files.
-          if(name.match(/^.*\.[^\/]+$/)) type = that.types.file;
+          if(name.match(/^.*\.[^\/]+$/)) type = Scraper.types.file;
 
           // TODO when should this NOT be done (e.g. files)
-          if(type !== that.types.file) name = name.slice(0,-1); // Remove the trailing "/"
+          if(type !== Scraper.types.file) name = name.slice(0,-1); // Remove the trailing "/"
 
           // Check for this objects presence in known objects
-          if(type !== that.types.file && type !== that.types[14]){
-            if (!that.knownEntities[name]) that.knownEntities[name] = id;
-            else id = that.knownEntities[name];
+          if(type !== Scraper.types.file && type !== Scraper.types[14]){
+            if (!Scraper.knownEntities[name]) Scraper.knownEntities[name] = id;
+            else id = Scraper.knownEntities[name];
           }
 
           // Add this entity to known subjects
           var subject = 'http://tcga.github.com/#'+id;
-          if(!that.knownSubjects[subject]){
-            that.knownSubjects[subject] = true;
-            that.knownSubjects.length += 1;
+          if(!Scraper.knownSubjects[subject]){
+            Scraper.knownSubjects[subject] = true;
+            Scraper.knownSubjects.length += 1;
           }
 
           querystring += 'tcga:'+id+' tcga:url "'+url+'" ;\n';
           querystring += "tcga:type "+type+" ;\n";
-          if (type === that.types.file){
+          if (type === Scraper.types.file){
             var ancestor;
             for (ancestor in parent){
-              querystring += ancestor+" "+parent[ancestor]+" ;\n";
+              if (parent.hasOwnProperty('ancestor')){
+                querystring += ancestor+" "+parent[ancestor]+" ;\n";
+              }
             }
           }
           querystring += 'tcga:ftp-name "'+name+'" .\n';
 
-          if (type !== that.types.file){// && target.split("/").length <= 9){// && (target.split("/").length > 9 || name > "stad")){ 
+          if (type !== Scraper.types.file && target.split("/").length <= 9){// && (target.split("/").length > 9 || name > "stad")){ 
             parent[type] = "tcga:"+id;
             children.push({store:store, url:url, parent:parent});
           }
@@ -257,7 +263,7 @@
                     counter.decrement();
                     nextChild(children);
                   };
-                  that.scrape(child);
+                  Scraper.scrape(child);
                 }
               };
               nextChild(children);
@@ -278,15 +284,14 @@
     },
 
     load : function(callback){
-      var that = this,
-          dirReader, scrapes = [], readEntries;
+      var dirReader, scrapes = [], readEntries;
 
-      if (!that.fileSystem) {
+      if (!Scraper.fileSystem) {
         console.log("Unable to load most recent scrape: filesystem not loaded");
         return;
       }
 
-      that.getScrapeList(function(scrapes){
+      Scraper.getScrapeList(function(scrapes){
         var scrape = scrapes[scrapes.length-1], //Get the most recent scrape
             scrapeDate = new Date(parseInt(scrape.name.match(/-([0-9]+)\./)[1],10)),
             scrapeDateString = scrapeDate.toLocaleString().split(" ").slice(0,5).join(" ");
@@ -295,13 +300,13 @@
           var reader = new FileReader();
 
           reader.onloadend = function(e){
-            that.store.load("text/n3", this.result, function(succ, results){
+            Scraper.store.load("text/n3", this.result, function(succ, results){
               if (!succ) {
-                that.postMessage("error", ["Failed to load triples from scrape on", scrapeDateString]);
+                Scraper.postMessage("error", ["Failed to load triples from scrape on", scrapeDateString]);
                 console.error("Failed to load triples from scrape on", scrapeDate);
                 return;
               }
-              that.postMessage("success", ["Loaded", results, "triples scraped on", scrapeDateString]);
+              Scraper.postMessage("success", ["Loaded", results, "triples scraped on", scrapeDateString]);
               console.log("Loaded", results, "triples scraped on", scrapeDate);
             });
           };
@@ -312,19 +317,18 @@
     },
 
     getScrapeList : function(callback){
-      var that = this,
-          dirReader, scrapes = [], readEntries;
+      var dirReader, scrapes = [], readEntries;
 
-      if (!that.fileSystem) {
+      if (!Scraper.fileSystem) {
         console.log("Unable get scrape list: filesystem not loaded");
         return;
       }
 
-      dirReader = that.fileSystem.root.createReader();
+      dirReader = Scraper.fileSystem.root.createReader();
       readEntries = function() {
          dirReader.readEntries (function(results) {
           if (!results.length) {
-            that.scrapeList = scrapes;
+            Scraper.scrapeList = scrapes;
             if (callback && typeof callback === 'function') callback(scrapes);
           } else {
             scrapes = scrapes.concat(toArray(results));
@@ -336,37 +340,35 @@
     },
 
     save : function(callback){
-      var that = this,
-          now = new Date(),
+      var now = new Date(),
           filename = ["tcgascrape-",now.valueOf(),".nt"].join("");
 
-      if (!that.fileSystem) {
-        that.postMessage("error", "Unable to save scrape: filesystem not loaded");
+      if (!Scraper.fileSystem) {
+        Scraper.postMessage("error", "Unable to save scrape: filesystem not loaded");
         console.log("Unable to save scrape: filesystem not loaded");
         return;
       }
 
-      that.fileSystem.root.getFile(filename, {create: true, exclusive: false}, function(fileEntry) {
+      Scraper.fileSystem.root.getFile(filename, {create: true, exclusive: false}, function(fileEntry) {
         var url = fileEntry.toURL(),
             subject,
-            numRows = that.knownSubjects.length,
+            numRows = Scraper.knownSubjects.length,
             savedRows = 0,
             rowCallback = function(){
               if (++savedRows >= numRows){
                 console.log("savedRows:", savedRows, "numRows", numRows);
-                that.postMessage("success", ['Saved scrape from', now.toString()]);
+                Scraper.postMessage("success", ['Saved scrape from', now.toString()]);
                 console.log('Saved scrape from', now.toString(), 'to', url);
-                that.endSpinner("a.btn-primary:contains('Start new Scrape')");
-                that.checkForRecentScrapes();
+                Scraper.endSpinner("a.btn-primary:contains('Start new Scrape')");
+                Scraper.checkForRecentScrapes();
                 if (callback && typeof callback === 'function') callback();
               }
             };
         console.log("Beginning serialization of", numRows, "rows.");
-        for (subject in that.knownSubjects){
+        for (subject in Scraper.knownSubjects){
           if (subject === "length") continue;
-          //if (!that.knownSubjects.hasOwnProperty[subject]) continue;
-        //that.store.execute("select ?subject where {?subject ?p ?o .}", function(succ, rows){
-          that.store.node(subject, function(succ, graph){
+          if (!(Scraper.knownSubjects.hasOwnProperty(subject))) continue;
+          Scraper.store.node(subject, function(succ, graph){
             if (!succ) {
               console.error("Unable to get graph for serialization");
               return;
@@ -404,7 +406,6 @@
 
             });
           });
-        //});
         }
       }, fsErrorCallback);
     },
@@ -444,17 +445,16 @@
     },
 
     checkForRecentScrapes : function(){
-      var that=this;
-      $("#scrapelist").empty();
-      that.getScrapeList(function(scrapes){
+      $("#scrapelist").html("");
+      Scraper.getScrapeList(function(scrapes){
         scrapes.forEach(function(scrape){
           var scrapeDate = new Date(parseInt(scrape.name.match(/-([0-9]+)\./)[1],10)),
               scrapeDateString = scrapeDate.toLocaleString().split(" ").slice(0,5).join(" "),
               loader = $("<p>"),
-              loadButton = $("<a class='btn btn-primary btn-mini'>Load</a>").bind("click",(that.load).bind(that)),
+              loadButton = $("<a class='btn btn-primary btn-mini'>Load</a>").bind("click", Scraper.load),
               delButton = $("<a class='btn btn-danger btn-mini'>Delete</a>").bind("click",function(){
                 scrape.remove(function(){}, function(){});
-                that.checkForRecentScrapes();
+                Scraper.checkForRecentScrapes();
               }),
               downloadButton = $("<a class='btn btn-mini'>Download</a>").attr('href', scrape.toURL());
           loader.append("Scrape found from ", scrapeDateString, " ", loadButton, " ", downloadButton, " ", delButton)
