@@ -465,8 +465,11 @@
 
   };
 
-  TCGA.registerTab(TCGAScraper.name, TCGAScraper.nav, TCGAScraper.gui);
-  TCGAScraper.init();
-  TCGA.Scraper = TCGA.Scraper || TCGAScraper;
+  TCGA.loadScript("https://raw.github.com/wilkinson/quanah/master/src/quanah.js", function(err){
+    if (err) throw err;
+    TCGA.registerTab(Scraper.name, Scraper.nav, Scraper.gui);
+    Scraper.init();
+    TCGA.Scraper = TCGA.Scraper || Scraper;
+  });
 
 })(TCGA);
