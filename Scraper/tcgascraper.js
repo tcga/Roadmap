@@ -94,17 +94,6 @@
         Scraper.checkForRecentScrapes();
       }, fsErrorCallback);
 
-      // Remove old databases
-      var db = openDatabase('tcga', '1.0', 'Scrapes of the TCGA as text/n3', 500000000);
-      var onerror = function(tx, err){
-            if (!err.message.match(/no such table/)) console.error(err);
-            else db = null;
-          },
-          onsuccess = function(tx, resp){ console.log("Removed old scrapes table"); db = null;};
-      db.transaction(function(tx){
-        tx.executeSql("DROP TABLE scrapes", [], onsuccess, onerror);
-      });
-
       // Init the UI
       $("#query").submit(function(e){
         var query = $("#sparql", this).val();
