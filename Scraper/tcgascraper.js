@@ -434,7 +434,8 @@
     },
 
     checkForRecentScrapes : function(){
-      $("#scrapelist").html("");
+      document.getElementById("scrapelist").innerHTML = "";
+      //$("#scrapelist").html("");
       Scraper.getScrapeList(function(scrapes){
         scrapes.forEach(function(scrape){
           var scrapeDate = new Date(parseInt(scrape.name.match(/-([0-9]+)\./)[1],10)),
