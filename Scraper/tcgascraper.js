@@ -155,11 +155,14 @@
     knownSubjects : { length:0 },
 
     scrape : function(options){
-      var opts = options || {},
-          target = opts.url || "https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/",
-          store = opts.store || Scraper.store,
-          parent = opts.parent || {},
-          callback = opts.callback || (!opts.parent && Scraper.save) || null;
+      var opts, target, store, parent, callback;
+
+      // Parse Arguments
+      opts = options || {},
+      target = opts.url || "https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/",
+      store = opts.store || Scraper.store,
+      parent = opts.parent || {},
+      callback = opts.callback || (!opts.parent && Scraper.save) || null;
 
       if (!store) {
         console.error("RDFStore required");
@@ -329,8 +332,7 @@
     },
 
     save : function(callback){
-      var now = new Date(),
-          filename = ["tcgascrape-",now.valueOf(),".nt"].join("");
+      var filename = ["tcgascrape-",Date.now(),".nt"].join("");
 
       if (!Scraper.fileSystem) {
         Scraper.postMessage("error", "Unable to save scrape: filesystem not loaded");
@@ -339,20 +341,23 @@
       }
 
       Scraper.fileSystem.root.getFile(filename, {create: true, exclusive: false}, function(fileEntry) {
-        var url = fileEntry.toURL(),
-            subject,
-            numRows = Scraper.knownSubjects.length,
-            savedRows = 0,
-            rowCallback = function(){
-              if (++savedRows >= numRows){
-                console.log("savedRows:", savedRows, "numRows", numRows);
-                Scraper.postMessage("success", ['Saved scrape from', now.toString()]);
-                console.log('Saved scrape from', now.toString(), 'to', url);
-                Scraper.endSpinner("a.btn-primary:contains('Start new Scrape')");
-                Scraper.checkForRecentScrapes();
-                if (callback && typeof callback === 'function') callback();
-              }
-            };
+
+        var url, subject, numRows, savedRows, rowCallback;
+
+        url = fileEntry.toURL(),
+        subject,
+        numRows = Scraper.knownSubjects.length,
+        savedRows = 0,
+        rowCallback = function(){
+          if (++savedRows >= numRows){
+            console.log("savedRows:", savedRows, "numRows", numRows);
+            Scraper.postMessage("success", ['Saved scrape from', now.toString()]);
+            console.log('Saved scrape from', now.toString(), 'to', url);
+            Scraper.endSpinner("a.btn-primary:contains('Start new Scrape')");
+            Scraper.checkForRecentScrapes();
+            if (callback && typeof callback === 'function') callback();
+          }
+        };
         console.log("Beginning serialization of", numRows, "rows.");
         for (subject in Scraper.knownSubjects){
           if (subject === "length") continue;
