@@ -1,7 +1,0 @@
-{
-  "https://raw.github.com/drobbins/TCGApps/master/Scraper/tcgascraper.js" : {
-    "name" : "TCGA Scraper",
-    "description" : "Scrapes the directory structure of the TCGA into an RDF graph",
-    "url" : "https://raw.github.com/drobbins/TCGApps/master/Scraper/tcgascraper.js"
-  }
-}
