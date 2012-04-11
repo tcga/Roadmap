@@ -158,10 +158,10 @@
       var opts, target, store, parent, callback;
 
       // Parse Arguments
-      opts = options || {},
-      target = opts.url || "https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/",
-      store = opts.store || Scraper.store,
-      parent = opts.parent || {},
+      opts = options || {};
+      target = opts.url || "https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/";
+      store = opts.store || Scraper.store;
+      parent = opts.parent || {};
       callback = opts.callback || (!opts.parent && Scraper.save) || null;
 
       if (!store) {
@@ -222,14 +222,14 @@
           if (type === Scraper.types.file){
             var ancestor;
             for (ancestor in parent){
-              if (parent.hasOwnProperty('ancestor')){
+              if (parent.hasOwnProperty(ancestor)){
                 querystring += ancestor+" "+parent[ancestor]+" ;\n";
               }
             }
           }
           querystring += 'tcga:ftp-name "'+name+'" .\n';
 
-          if (type !== Scraper.types.file && target.split("/").length <= 9){// && (target.split("/").length > 9 || name > "stad")){ 
+          if (type !== Scraper.types.file){// && target.split("/").length <= 9){// && (target.split("/").length > 9 || name > "stad")){ 
             parent[type] = "tcga:"+id;
             children.push({store:store, url:url, parent:parent});
           }
@@ -342,65 +342,69 @@
 
       Scraper.fileSystem.root.getFile(filename, {create: true, exclusive: false}, function(fileEntry) {
 
-        var url, subject, numRows, savedRows, rowCallback;
+        var url, subject, numRows, savedRows, rowCallback, writeVar, onreadyWrite;
 
-        url = fileEntry.toURL(),
-        subject,
-        numRows = Scraper.knownSubjects.length,
-        savedRows = 0,
+        url = fileEntry.toURL();
+        numRows = Scraper.knownSubjects.length;
+        savedRows = 0;
         rowCallback = function(){
           if (++savedRows >= numRows){
-            console.log("savedRows:", savedRows, "numRows", numRows);
-            Scraper.postMessage("success", ['Saved scrape from', now.toString()]);
-            console.log('Saved scrape from', now.toString(), 'to', url);
-            Scraper.endSpinner("a.btn-primary:contains('Start new Scrape')");
-            Scraper.checkForRecentScrapes();
-            if (callback && typeof callback === 'function') callback();
           }
         };
-        console.log("Beginning serialization of", numRows, "rows.");
-        for (subject in Scraper.knownSubjects){
-          if (subject === "length") continue;
-          if (!(Scraper.knownSubjects.hasOwnProperty(subject))) continue;
-          Scraper.store.node(subject, function(succ, graph){
-            if (!succ) {
-              console.error("Unable to get graph for serialization");
-              return;
-            }
-            fileEntry.createWriter(function(fileWriter) {
+        writeVar = Q.avar({ val:{fileEntry:fileEntry} });
+        onreadyWrite = function (subject) {
+          return function (evt) {
+            Scraper.store.node(subject, function(succ, graph){
+              if (!succ) {
+                console.error("Unable to get graph for serialization");
+                return;
+              }
+              fileEntry.createWriter(function(fileWriter) {
+                var i;
 
-              var numTriples = graph.triples.length,
-                  savedTriples = 0,
-                  batchSize = 10000;
+                fileWriter.seek(fileWriter.length); // Start at EOF
 
-              var writeBatch = function(batchSize){
-                var start = savedTriples,
-                    end = start + batchSize,
-                    i,
-                    bb = new window.WebKitBlobBuilder(); // Note: window.WebKitBlobBuilder in Chrome 12.
-                for (i = start; i < end && i < numTriples-1 ; i++){
+                fileWriter.onwriteend = function(e) {
+                  console.log("Saved", ++savedRows,"rows out of", numRows);
+                  return evt.exit();
+                };
+
+                fileWriter.onerror = function(e) {
+                  return evt.fail(e);
+                };
+
+                var bb = new window.WebKitBlobBuilder(); // Note: window.WebKitBlobBuilder in Chrome 12.
+                for (i=0;i<graph.triples.length;i++){
                   bb.append(graph.triples[i].toString());
                 }
                 fileWriter.write(bb.getBlob('text/plain'));
-              };
-
-              fileWriter.onwriteend = function(e) {
-                savedTriples += batchSize;
-                if (savedTriples >= numTriples){
-                  rowCallback();
-                }
-                else writeBatch(batchSize);
-              };
-
-              fileWriter.onerror = function(e) {
-                console.log('Write failed: ' + e.toString());
-              };
-
-              writeBatch(batchSize);
-
+              });
             });
-          });
+          };
+        };
+        writeVar.onerror = function(msg){
+          console.error(e);
+        };
+
+        console.log("Beginning serialization of", numRows, "rows.");
+
+        for (subject in Scraper.knownSubjects){
+          if (subject === "length") continue;
+          if (!(Scraper.knownSubjects.hasOwnProperty(subject))) continue;
+          writeVar.onready = onreadyWrite(subject);
         }
+
+        writeVar.onready = function (evt) {
+          var now = new Date();
+          console.log("savedRows:", savedRows, "numRows", numRows);
+          Scraper.postMessage("success", ['Saved scrape from', now.toString()]);
+          console.log('Saved scrape from', now.toString(), 'to', url);
+          Scraper.endSpinner("a.btn-primary:contains('Start new Scrape')");
+          Scraper.checkForRecentScrapes();
+          if (callback && typeof callback === 'function') callback();
+          return evt.exit();
+        };
+
       }, fsErrorCallback);
     },
 
