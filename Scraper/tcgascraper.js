@@ -99,12 +99,12 @@
         var query = $("#sparql", this).val();
         if(query !== ""){
           try {
-            TCGAScraper.store.execute(query, function(succ, resp){
+            Scraper.store.execute(query, function(succ, resp){
               if(!succ){
                 Scraper.postMessage("error", "Unable to execute query: " + query);
               }
               else {
-                TCGAScraper.parseResults(resp);
+                Scraper.parseResults(resp);
               }
             });
           }
@@ -229,9 +229,9 @@
           }
           querystring += 'tcga:ftp-name "'+name+'" .\n';
 
-          if (type !== Scraper.types.file){// && target.split("/").length <= 9){// && (target.split("/").length > 9 || name > "stad")){ 
+          if (type !== Scraper.types.file){// && (target.split("/").length > 9 || name > "stad")){ // && target.split("/").length <= 9){
             parent[type] = "tcga:"+id;
-            children.push({store:store, url:url, parent:parent});
+            children.push({store:store, url:url, parent:JSON.parse(JSON.stringify(parent))});
           }
 
         });
