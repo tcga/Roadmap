@@ -184,7 +184,7 @@
 
         var links = $("a", $(response)),
             link, index, children = [],
-            querystring = "@prefix tcga:<http://tcga.github.com/#> .\n";
+            querystring = "@prefix tcga:<http://tcga.github.com/#> .\n @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . \n";
 
         links.each(function(index, link){
 
@@ -218,7 +218,7 @@
           }
 
           querystring += 'tcga:'+id+' tcga:url "'+url+'" ;\n';
-          querystring += "tcga:type "+type+" ;\n";
+          querystring += "a "+type+" ;\n";
           if (type === Scraper.types.file){
             var ancestor;
             for (ancestor in parent){
@@ -227,7 +227,7 @@
               }
             }
           }
-          querystring += 'tcga:ftp-name "'+name+'" .\n';
+          querystring += 'rdfs:label "'+name+'" .\n';
 
           if (type !== Scraper.types.file){// && (target.split("/").length > 9 || name > "stad")){ // && target.split("/").length <= 9){
             parent[type] = "tcga:"+id;
@@ -304,7 +304,7 @@
           reader.onloadend = function(e){
             Scraper.postMessage("info", ["Preparing Triplestore..."]);
             try {
-            Scraper.store.load("text/n3", this.result, function(succ, results){
+            Scraper.store.load("text/turtle", this.result, function(succ, results){
               if (!succ) {
                 Scraper.postMessage("error", ["Failed to load triples from scrape on", scrapeDateString]);
                 console.error("Failed to load triples from scrape on", scrapeDate);
