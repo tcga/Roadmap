@@ -99,12 +99,12 @@
         var query = $("#sparql", this).val();
         if(query !== ""){
           try {
-            TCGAScraper.store.execute(query, function(succ, resp){
+            Scraper.store.execute(query, function(succ, resp){
               if(!succ){
                 Scraper.postMessage("error", "Unable to execute query: " + query);
               }
               else {
-                TCGAScraper.parseResults(resp);
+                Scraper.parseResults(resp);
               }
             });
           }
@@ -184,7 +184,7 @@
 
         var links = $("a", $(response)),
             link, index, children = [],
-            querystring = "@prefix tcga:<http://tcga.github.com/#> .\n";
+            querystring = "@prefix tcga:<http://tcga.github.com/#> .\n @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . \n";
 
         links.each(function(index, link){
 
@@ -218,7 +218,7 @@
           }
 
           querystring += 'tcga:'+id+' tcga:url "'+url+'" ;\n';
-          querystring += "tcga:type "+type+" ;\n";
+          querystring += "a "+type+" ;\n";
           if (type === Scraper.types.file){
             var ancestor;
             for (ancestor in parent){
@@ -227,11 +227,11 @@
               }
             }
           }
-          querystring += 'tcga:ftp-name "'+name+'" .\n';
+          querystring += 'rdfs:label "'+name+'" .\n';
 
-          if (type !== Scraper.types.file){// && target.split("/").length <= 9){// && (target.split("/").length > 9 || name > "stad")){ 
+          if (type !== Scraper.types.file){// && (target.split("/").length > 9 || name > "stad")){ // && target.split("/").length <= 9){
             parent[type] = "tcga:"+id;
-            children.push({store:store, url:url, parent:parent});
+            children.push({store:store, url:url, parent:JSON.parse(JSON.stringify(parent))});
           }
 
         });
@@ -275,24 +275,36 @@
       });
     },
 
-    load : function(callback){
+    load : function(scrapeToLoad, callback){
       var dirReader, scrapes = [], readEntries;
 
       if (!Scraper.fileSystem) {
-        console.log("Unable to load most recent scrape: filesystem not loaded");
+        console.log("Unable to load scrape: filesystem not loaded");
         return;
       }
 
       Scraper.getScrapeList(function(scrapes){
-        var scrape = scrapes[scrapes.length-1], //Get the most recent scrape
-            scrapeDate = new Date(parseInt(scrape.name.match(/-([0-9]+)\./)[1],10)),
-            scrapeDateString = scrapeDate.toLocaleString().split(" ").slice(0,5).join(" ");
+        var scrape, scrapeDate, scrapeDateString;
+
+        scrape = scrapeToLoad || scrapes[scrapes.length-1];
+        scrapeDate = new Date(parseInt(scrape.name.match(/-([0-9]+)\./)[1],10));
+        scrapeDateString = scrapeDate.toLocaleString().split(" ").slice(0,5).join(" ");
         console.log("Loading scrape from:", scrapeDate);
         scrape.file(function(scrapefile){
-          var reader = new FileReader();
+          var reader, partialResults = [];
+
+          reader = new FileReader();
+
+          Scraper.postMessage("info", ["Starting load of", scrape.name]);
+
+          reader.onprogress = function(e){
+            Scraper.postMessage("info", ["Successfully Loaded", parseInt(e.loaded / e.total * 100, 10)+"%", "of", scrape.name]);
+          };
 
           reader.onloadend = function(e){
-            Scraper.store.load("text/n3", this.result, function(succ, results){
+            Scraper.postMessage("info", ["Preparing Triplestore..."]);
+            try {
+            Scraper.store.load("text/turtle", this.result, function(succ, results){
               if (!succ) {
                 Scraper.postMessage("error", ["Failed to load triples from scrape on", scrapeDateString]);
                 console.error("Failed to load triples from scrape on", scrapeDate);
@@ -301,6 +313,10 @@
               Scraper.postMessage("success", ["Loaded", results, "triples scraped on", scrapeDateString]);
               console.log("Loaded", results, "triples scraped on", scrapeDate);
             });
+            } catch (e) {
+              Scraper.postMessage("error", ["Failed to load triples from scrape on", scrapeDateString]);
+              console.error("Failed to load triples from scrape on", scrapeDate);
+            }
           };
 
           reader.readAsText(scrapefile);
@@ -342,30 +358,33 @@
 
       Scraper.fileSystem.root.getFile(filename, {create: true, exclusive: false}, function(fileEntry) {
 
-        var url, subject, numRows, savedRows, rowCallback, writeVar, onreadyWrite;
+        fileEntry.createWriter(function(fileWriter) {
 
-        url = fileEntry.toURL();
-        numRows = Scraper.knownSubjects.length;
-        savedRows = 0;
-        rowCallback = function(){
-          if (++savedRows >= numRows){
-          }
-        };
-        writeVar = Q.avar({ val:{fileEntry:fileEntry} });
-        onreadyWrite = function (subject) {
-          return function (evt) {
-            Scraper.store.node(subject, function(succ, graph){
-              if (!succ) {
-                console.error("Unable to get graph for serialization");
-                return;
-              }
-              fileEntry.createWriter(function(fileWriter) {
+          var url, subject, numRows, savedRows, rowCallback, writeVar, onreadyWrite;
+
+          url = fileEntry.toURL();
+          numRows = Scraper.knownSubjects.length;
+          savedRows = 0;
+          rowCallback = function(){
+            if (++savedRows >= numRows){
+            }
+          };
+          writeVar = Q.avar({ val:{fileWriter:fileWriter} });
+          onreadyWrite = function (subject, fileWriter) {
+            return function (evt) {
+              Scraper.store.node(subject, function(succ, graph){
+
                 var i;
 
-                fileWriter.seek(fileWriter.length); // Start at EOF
+                if (!succ) {
+                  console.error("Unable to get graph for serialization");
+                  return;
+                }
+
+                //fileWriter.seek(fileWriter.length); // Start at EOF
 
                 fileWriter.onwriteend = function(e) {
-                  console.log("Saved", ++savedRows,"rows out of", numRows);
+                  if (++savedRows % 10000 === 0) console.log("Saved", savedRows,"rows out of", numRows);
                   return evt.exit();
                 };
 
@@ -378,33 +397,34 @@
                   bb.append(graph.triples[i].toString());
                 }
                 fileWriter.write(bb.getBlob('text/plain'));
+
               });
-            });
+            };
           };
-        };
-        writeVar.onerror = function(msg){
-          console.error(e);
-        };
+          writeVar.onerror = function(msg){
+            console.error(e);
+          };
 
-        console.log("Beginning serialization of", numRows, "rows.");
+          console.log("Beginning serialization of", numRows, "rows.");
 
-        for (subject in Scraper.knownSubjects){
-          if (subject === "length") continue;
-          if (!(Scraper.knownSubjects.hasOwnProperty(subject))) continue;
-          writeVar.onready = onreadyWrite(subject);
-        }
+          for (subject in Scraper.knownSubjects){
+            if (subject === "length") continue;
+            if (!(Scraper.knownSubjects.hasOwnProperty(subject))) continue;
+            writeVar.onready = onreadyWrite(subject, fileWriter);
+          }
 
-        writeVar.onready = function (evt) {
-          var now = new Date();
-          console.log("savedRows:", savedRows, "numRows", numRows);
-          Scraper.postMessage("success", ['Saved scrape from', now.toString()]);
-          console.log('Saved scrape from', now.toString(), 'to', url);
-          Scraper.endSpinner("a.btn-primary:contains('Start new Scrape')");
-          Scraper.checkForRecentScrapes();
-          if (callback && typeof callback === 'function') callback();
-          return evt.exit();
-        };
+          writeVar.onready = function (evt) {
+            var now = new Date();
+            console.log("savedRows:", savedRows, "numRows", numRows);
+            Scraper.postMessage("success", ['Saved scrape from', now.toString()]);
+            console.log('Saved scrape from', now.toString(), 'to', url);
+            Scraper.endSpinner("a.btn-primary:contains('Start new Scrape')");
+            Scraper.checkForRecentScrapes();
+            if (callback && typeof callback === 'function') callback();
+            return evt.exit();
+          };
 
+        });
       }, fsErrorCallback);
     },
 
@@ -450,7 +470,9 @@
           var scrapeDate = new Date(parseInt(scrape.name.match(/-([0-9]+)\./)[1],10)),
               scrapeDateString = scrapeDate.toLocaleString().split(" ").slice(0,5).join(" "),
               loader = $("<p>"),
-              loadButton = $("<a class='btn btn-primary btn-mini'>Load</a>").bind("click", Scraper.load),
+              loadButton = $("<a class='btn btn-primary btn-mini'>Load</a>").bind("click", function(){
+                Scraper.load(scrape);
+              }),
               delButton = $("<a class='btn btn-danger btn-mini'>Delete</a>").bind("click",function(){
                 scrape.remove(function(){}, function(){});
                 Scraper.checkForRecentScrapes();
