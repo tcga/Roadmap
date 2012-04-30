@@ -138,6 +138,7 @@
       12 : "tcga:platform",
       13 : "tcga:data-type",
       14 : "tcga:archive",
+      archive : "tcga:archive",
       15 : "tcga:file",
       file : "tcga:file"
     },
@@ -204,6 +205,11 @@
           if(type !== Scraper.types.file && type !== Scraper.types[14]){
             if (!Scraper.knownEntities[name]) Scraper.knownEntities[name] = id;
             else id = Scraper.knownEntities[name];
+          }
+
+          // If a file ends in .tar.gz or .tar.gz.md5, type it as an archive
+          if(type === Scraper.types.file && name.match(/\.tar\.gz($|\.md5$)/)){
+            type = Scraper.types.archive;
           }
 
           // Add this entity to known subjects
