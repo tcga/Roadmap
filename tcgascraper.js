@@ -15,29 +15,29 @@
 
   // Generate a UUID
   uuid = function uuid(a){
-      //Function from https://gist.github.com/982883 (@jed)
-      return a?(a^Math.random()*16>>a/4).toString(16):([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,uuid);
+    //Function from https://gist.github.com/982883 (@jed)
+    return a?(a^Math.random()*16>>a/4).toString(16):([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,uuid);
   };
 
   // Semaphore from https://gist.github.com/1296828
-  Sync = function(syncCount, callback, preventInstantCallbackExecution) {
-      this.syncCount = syncCount;
-      this.callback = callback;
-      if(preventInstantCallbackExecution === false && this.syncCount === 0) {
-          this.executeCallback();
-      }
+  Sync = function Sync(syncCount, callback, preventInstantCallbackExecution) {
+    this.syncCount = syncCount;
+    this.callback = callback;
+    if(preventInstantCallbackExecution === false && this.syncCount === 0) {
+      this.executeCallback();
+    }
   };
   Sync.prototype.decrement = function() {
-      --this.syncCount;
-      if(this.syncCount === 0) {
-          this.executeCallback();
-      }
+    --this.syncCount;
+    if(this.syncCount === 0) {
+      this.executeCallback();
+    }
   };
   Sync.prototype.increment = function() {
-      ++this.syncCount;
+    ++this.syncCount;
   };
   Sync.prototype.executeCallback = function() {
-      if (typeof this.callback === "function") this.callback();
+    if (typeof this.callback === "function") this.callback();
   };
 
   // Generic onerror for filesystem calls
@@ -83,14 +83,14 @@
         store.registerDefaultProfileNamespaces();
         store.registerDefaultNamespace("tcga", "http://tcga.github.com/#");
         Scraper.store = store;
-        console.log("Store ready");
+        console.log("RDF Store ready.");
       });
 
       //Initialize the File System
       window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
       Scraper.fileSystem = window.requestFileSystem(window.PERSISTENT, 500*1024*1024, function(newFs){
         Scraper.fileSystem = newFs;
-        console.log("Filesystem ready");
+        console.log("Filesystem ready.");
         Scraper.checkForRecentScrapes();
       }, fsErrorCallback);
 
@@ -114,7 +114,8 @@
         }
         return false;
       });
-      $("<p>").append($("<a class='btn btn-primary'>Start new Scrape</a>").click(Scraper.scrape))
+      $("<p>").append($("<a class='btn btn-primary'>Start new Scrape</a>")
+        .click(Scraper.scrape))
         .appendTo("#controls");
     },
 
@@ -162,12 +163,7 @@
       target = opts.url || "https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/";
       store = opts.store || Scraper.store;
       parent = opts.parent || {};
-      callback = opts.callback || (!opts.parent && Scraper.save) || null;
-
-      if (!store) {
-        console.error("RDFStore required");
-        return;
-      }
+      callback = opts.callback || null;
 
       if (!opts.url) console.log("Beginning scrape of: ",target);
 
@@ -217,6 +213,7 @@
             Scraper.knownSubjects.length += 1;
           }
 
+          // Build the query string
           querystring += 'tcga:'+id+' tcga:url "'+url+'" ;\n';
           querystring += "a "+type+" ;\n";
           if (type === Scraper.types.file){
@@ -229,6 +226,7 @@
           }
           querystring += 'rdfs:label "'+name+'" .\n';
 
+          // If the entity is not a file, put it's children on the stack to be scraped.
           if (type !== Scraper.types.file){// && (target.split("/").length > 9 || name > "stad")){ // && target.split("/").length <= 9){
             parent[type] = "tcga:"+id;
             children.push({store:store, url:url, parent:JSON.parse(JSON.stringify(parent))});
