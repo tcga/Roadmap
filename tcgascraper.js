@@ -125,7 +125,7 @@
 
     scrapeList : null,
 
-    gui : '<div class="span12"><h1>TCGA SPARQL Interface</h1></div><form class="span6" id="query"><div class="control-group"><div class="controls"><textarea class="span6" id="sparql" rows="10">SELECT * WHERE { ?s ?p ?o . } LIMIT 25</textarea><span class="help-inline"><p>Enter our SPARQL Query and click submit.</p></span></div></div><div class="form-actions"><button type="submit" class="btn btn-primary">Submit Query</button> <button class="btn">Cancel</button></div></form><div id="controls" class="span6"><div id="message"></div><div id="scrapelist"></div></div><div class="span12" id="results"></div>',
+    gui : '<h1>TCGA SPARQL Interface</h1><div class="row"><div class="span6"><form id="query"><div class="control-group"><div class="controls"><textarea class="span6" id="sparql" rows="10">SELECT * WHERE { ?s ?p ?o . } LIMIT 25</textarea><span class="help-inline"><p>Enter our SPARQL Query and click submit.</p></span></div></div><div class="form-actions"><button type="submit" class="btn btn-primary">Submit Query</button> <button class="btn">Cancel</button></div></form></div><div id="controls" class="span6"><div id="message"></div><div id="scrapelist"></div></div><div id="results"></div>',
 
     nav : 'SPARQL',
 
