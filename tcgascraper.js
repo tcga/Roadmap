@@ -492,7 +492,7 @@
 
   TCGA.loadScript("https://raw.github.com/wilkinson/quanah/master/src/quanah.js", function(err){
     if (err) throw err;
-    TCGA.registerTab(Scraper.name, Scraper.nav, Scraper.gui);
+    TCGA.registerTab({id : Scraper.name, title: Scraper.nav, content : Scraper.gui});
     Scraper.init();
     TCGA.Scraper = TCGA.Scraper || Scraper;
   });
