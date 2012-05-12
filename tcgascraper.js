@@ -188,7 +188,8 @@
           var name = $(link).attr('href'),
               id = uuid(),
               url = target + name,
-              type = Scraper.types[target.split("/").length];
+              type = Scraper.types[target.split("/").length],
+              scrapeChildren = true;
 
           // Filter out links beginning with ? or /
           // (i.e. column headers and parent links)
@@ -196,7 +197,10 @@
 
           // Things with extensions are files (e.g. reallylong_name.tiff)
           // TODO Use MIME types to determine files.
-          if(name.match(/^.*\.[^\/]+$/)) type = Scraper.types.file;
+          if(name.match(/^.*\.[^\/]+$/)){
+            type = Scraper.types.file;
+            scrapeChildren = false;
+          }
 
           // TODO when should this NOT be done (e.g. files)
           if(type !== Scraper.types.file) name = name.slice(0,-1); // Remove the trailing "/"
@@ -233,7 +237,7 @@
           querystring += 'rdfs:label "'+name+'" .\n';
 
           // If the entity is not a file, put it's children on the stack to be scraped.
-          if (type !== Scraper.types.file){// && (target.split("/").length > 9 || name > "stad")){ // && target.split("/").length <= 9){
+          if (scrapeChildren){// && (target.split("/").length > 9 || name > "stad")){ // && target.split("/").length <= 9){
             parent[type] = "tcga:"+id;
             children.push({store:store, url:url, parent:JSON.parse(JSON.stringify(parent))});
           }
