@@ -113,15 +113,13 @@
         tcga = function (name) { return "<http://purl.org/tcga/core#"+name+">"; };
         literal = function (value) { return '"'+value+'"'; };
         pre = body.match(/<pre>([\s\S]*)<\/pre>/)[1];
-        rows = pre.split("\n");
-        rows = rows.slice(1,rows.length-1); // Slice off the first and last rows
+        rows = pre.match(/<a[^?P]*?<\/a>[\s\S]+?\d{2}-\w{3}-\d{4}/g);
 
-        rows.forEach(function (row) {
+        if (rows) rows.forEach(function (row) {
 
           var name, id, url, type, tripleString, lastModified, subject, scrapeChildren = true;
 
-          name = row.match(/>(.*)</);
-          if(!name) console.log(row, name); else name = name[1];
+          name = row.match(/>(.*)</)[1];
           id = uuid();
           url = target + row.match(/href="(.*)"/)[1];
           type = types[target.split('/').length];
@@ -203,7 +201,7 @@
   };
 
   //logger = hub.subscribe('/triples', function ( msg ) {
-  //  if (msg.type === 'disease-study') console.log("Completed scrape of", msg.name);
+  //  console.log(msg.triples);
   //});
 
   writer = Writer.getInstance();
