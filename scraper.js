@@ -112,21 +112,24 @@
 
         tcga = function (name) { return "<http://purl.org/tcga/core#"+name+">"; };
         literal = function (value) { return '"'+value+'"'; };
-        pre = body.match(/<pre>([\s\S]*)<\/pre>/)[1];
+        pre = body.match(/<pre>([\s\S]*)<\/pre>/);
+        if (!pre) return callCallback(); else pre = pre[1];
         rows = pre.match(/<a[^?P]*?<\/a>[\s\S]+?\d{2}-\w{3}-\d{4}/g);
 
         if (rows) rows.forEach(function (row) {
 
-          var name, id, url, type, tripleString, lastModified, subject, scrapeChildren = true;
+          var name, id, url, type, tripleString, lastModified, subject, scrapeChildren = true, level;
 
-          name = row.match(/>(.*)</)[1];
+          name = row.match(/>([\s\S]*)</);
+          if (!name) console.log(row); else name = name[1];
           id = uuid();
           url = target + row.match(/href="(.*)"/)[1];
-          type = types[target.split('/').length];
+          level = target.split('/').length;
+          type = types[level];
           lastModified = (new Date(row.match(/\d{2}-\w{3}-\d{4}/)[0])).toISOString().slice(0,10);
           tripleString = "";
 
-          if (process.env.TESTING && target.split("/").length >= 10) {
+          if ((process.env.TESTING && level >= 10) || level >= 15) {
             scrapeChildren = false;
           }
 
