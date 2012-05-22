@@ -113,15 +113,18 @@
         tcga = function (name) { return "<http://purl.org/tcga/core#"+name+">"; };
         literal = function (value) { return '"'+value+'"'; };
         pre = body.match(/<pre>([\s\S]*)<\/pre>/);
-        if (!pre) return callCallback(); else pre = pre[1];
-        rows = pre.match(/<a[^?P]*?<\/a>[\s\S]+?\d{2}-\w{3}-\d{4}/g);
+        if (!pre) {
+          console.log("Could not parse", target);
+          return callCallback();
+        } else pre = pre[1];
+        rows = pre.match(/<a[^>]+>[^<]+<\/a>\s+\d{2}-\w{3}-\d{4}/g);
 
         if (rows) rows.forEach(function (row) {
 
           var name, id, url, type, tripleString, lastModified, subject, scrapeChildren = true, level;
 
           name = row.match(/>([\s\S]*)</);
-          if (!name) console.log(row); else name = name[1];
+          if (!name) console.log("Could not parse", row); else name = name[1];
           id = uuid();
           url = target + row.match(/href="(.*)"/)[1];
           level = target.split('/').length;
@@ -148,6 +151,13 @@
             type = types.archive;
           }
 
+          // If a file is of the form 
+          // <domain>_<disease study>.<platform>.<archive type>.<serial index>.<revision>.<series>
+          // type it as an archive
+          if (name.match(/.*?_(.*?\.){5}\d$/)) {
+            type = types.archive;
+          }
+
           if (type !== types.file && type !== types.archive) {
             if (!knownEntities[name]) knownEntities[name] = id;
             else id = knownEntities[name];
@@ -157,7 +167,8 @@
           tripleString = [
             subject, "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>",  tcga(type), ".",
             subject, "<http://www.w3.org/2000/01/rdf-schema#label>", literal(name), ".",
-            subject, tcga("url"), literal(url), "."
+            subject, tcga("url"), literal(url), ".",
+            subject, tcga("last-modified"), literal(lastModified), "."
           ];
 
           if (type === types.file) {
@@ -166,6 +177,10 @@
               tripleString.push(subject, tcga(ancestor), parent[ancestor], ".");
             });
           }
+
+          //if (type === 'data-type' && name === "bcgsc.ca_LAML.IlluminaGA_RNASeq.Level_3.1.0.0") {
+          //  hub.publish('/triples', [{ triples : body + "\n" + target + "\n" + row }]);
+          //}
 
           hub.publish('/triples', [{
             triples : tripleString.join(" ") + "\n",
@@ -179,8 +194,6 @@
           }
 
         });
-
-        //hub.publish('/triples', [ { triples : children } ]);
 
         if (children.length > 0) {
           var counter = new Sync(children.length, callback);
