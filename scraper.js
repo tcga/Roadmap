@@ -9,8 +9,6 @@
   hub = require('node-pubsub');
   fs = require('fs');
 
-  console.log('Beginning scrape of', ROOT_URL);
-
   // Generate a UUID
   uuid = function uuid(a){
     //Function from https://gist.github.com/982883 (@jed)
@@ -228,5 +226,6 @@
     target : ROOT_URL,
     callback : function () { writer.close(); console.log("Scrape finished"); }
   });
+  console.log('Beginning scrape of', ROOT_URL);
 
 })( exports );
