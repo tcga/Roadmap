@@ -2,9 +2,11 @@
   'use strict';
   /*jshint node:true */
 
-  var request, fs, hub, scrape, writer, Writer, ROOT_URL, types, logger, uuid, knownEntities, Sync;
+  var request, fs, hub, scrape, writer, Writer, ROOT_URL, getKnownEntities,
+      types, logger, uuid, knownEntities, Sync, SPARQLURL;
 
   ROOT_URL = process.env.ROOT_URL;
+  SPARQLURL = process.env.SPARQLURL;
   request = require('request');
   hub = require('node-pubsub');
   fs = require('fs');
@@ -84,6 +86,45 @@
 
   knownEntities = {};
 
+  getKnownEntities = function () {
+    var query;
+
+    query = [ 'prefix tcga:<http://purl.org/tcga/core#>',
+              'select ?lastModified ?url ?id where {',
+              '  ?id tcga:last-modified ?lastModified .',
+              '  ?id tcga:url ?url .',
+              '}' ].join(' ');
+
+    console.log(SPARQLURL+encodeURIComponent(query));
+    request({
+        url : SPARQLURL+encodeURIComponent(query),
+        headers : { "Accept" : "application/sparql-results+json" }
+      }, function ( error, response, body ) {
+
+        if (error || response.statusCode !== 200) {
+          console.log("Unable to query SPARQL endpoint");
+          return;
+        }
+
+        var bindings;
+
+        bindings = JSON.parse(body).results.bindings;
+
+        bindings.forEach(function (binding) {
+          var name, tokens;
+          tokens = binding.url.value.split("/");
+          name = tokens[tokens.length-1] === "" ? tokens[tokens.length-2] : tokens[tokens.length-1];
+          knownEntities[name] = binding;
+        });
+
+        scrape({
+          target : ROOT_URL,
+          callback : function () { writer.close(); console.log("Scrape finished"); }
+        });
+
+    });
+  };
+
   scrape = function (options) {
     var opts, target, parent, callback, start, callCallback;
 
@@ -100,8 +141,7 @@
 
       if (error || response.statusCode !== 200) {
         console.log("Failed to get", target);
-        if (callback && typeof callback === 'function') callback();
-        else return;
+        return callCallback();
       }
 
       else {
@@ -149,7 +189,7 @@
             type = types.archive;
           }
 
-          // If a file is of the form 
+          // If a file is of the form
           // <domain>_<disease study>.<platform>.<archive type>.<serial index>.<revision>.<series>
           // type it as an archive
           if (name.match(/.*?_(.*?\.){5}\d$/)) {
@@ -157,8 +197,13 @@
           }
 
           if (type !== types.file && type !== types.archive) {
-            if (!knownEntities[name]) knownEntities[name] = id;
-            else id = knownEntities[name];
+            if (!knownEntities[name]) knownEntities[name] = { id : { value : id }};
+            else id = knownEntities[name].id.value;
+          }
+
+          if (knownEntities[name].lastModified.value >= lastModified) {
+            scrapeChildren = false;
+            console.log("Skipping children of", name, "no updates since", lastModified);
           }
 
           subject = tcga(id);
@@ -222,10 +267,9 @@
 
   hub.subscribe('/triples', writer.listen);
 
-  scrape({
-    target : ROOT_URL,
-    callback : function () { writer.close(); console.log("Scrape finished"); }
-  });
+  getKnownEntities();
+
   console.log('Beginning scrape of', ROOT_URL);
+
 
 })( exports );
