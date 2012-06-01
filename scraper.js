@@ -196,10 +196,8 @@
             type = types.archive;
           }
 
-          if (type !== types.file && type !== types.archive) {
-            if (!knownEntities[name]) knownEntities[name] = { id : { value : id }};
-            else id = knownEntities[name].id.value;
-          }
+          if (!knownEntities[name]) knownEntities[name] = { id : { value : id }};
+          else id = knownEntities[name].id.value;
 
           if (knownEntities[name].lastModified.value >= lastModified) {
             scrapeChildren = false;
