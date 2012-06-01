@@ -3,7 +3,7 @@
   /*jshint node:true */
 
   var request, fs, hub, scrape, writer, Writer, ROOT_URL, getKnownEntities,
-      types, logger, uuid, knownEntities, Sync, SPARQLURL;
+      types, logger, uuid, knownEntities, Sync, SPARQLURL, Query, query;
 
   ROOT_URL = process.env.ROOT_URL;
   SPARQLURL = process.env.SPARQLURL;
@@ -70,6 +70,47 @@
         return instantiated;
       }
     };
+  })();
+
+  // Query Singleton
+  Query = (function (){
+    var instantiated, init;
+
+    init = function () {
+
+      var query = {}, url;
+
+      url = process.env.SPARQLURL;
+
+      query.url = function (_) {
+        if (!_) return url;
+        else url = _;
+        return query;
+      };
+
+      query.listen = function (msg) {
+        var query;
+        query = 'INSERT DATA {'+msg.triples+'}';
+          console.log(url+encodeURIComponent(query));
+        request( url+encodeURIComponent(query), function (error, response, body) {
+          if (error || response.statusCode !== 200) {
+            console.log("Unable to load triples:", msg.triples);
+            return;
+          }
+          console.log(error, response, body);
+        });
+      };
+
+      return query;
+    };
+
+    return {
+      getInstance : function () {
+        if (!instantiated) instantiated = init();
+        return instantiated;
+      }
+    };
+
   })();
 
   types = {
@@ -196,12 +237,16 @@
             type = types.archive;
           }
 
-          if (!knownEntities[name]) knownEntities[name] = { id : { value : id }};
+          if (!knownEntities[name]) {
+            knownEntities[name] = {
+              id : { value : id }
+            };
+          }
           else id = knownEntities[name].id.value;
 
-          if (knownEntities[name].lastModified.value >= lastModified) {
+          if (knownEntities[name].lastModified && knownEntities[name].lastModified.value >= lastModified) {
             scrapeChildren = false;
-            console.log("Skipping children of", name, "no updates since", lastModified);
+            console.log("Skipping children of", name, ", no updates since", lastModified);
           }
 
           subject = tcga(id);
@@ -262,6 +307,10 @@
   //});
 
   writer = Writer.getInstance();
+
+  query = Query.getInstance().url(process.env.SPARQLURL);
+
+  hub.subscribe('/triples', query.listen);
 
   hub.subscribe('/triples', writer.listen);
 
