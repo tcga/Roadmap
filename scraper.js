@@ -25,19 +25,20 @@
     if(preventInstantCallbackExecution === false && this.syncCount === 0) {
       this.executeCallback();
     }
+    Sync.prototype.decrement = function() {
+      --this.syncCount;
+      if(this.syncCount === 0) {
+        this.executeCallback();
+      }
+    };
+    Sync.prototype.increment = function() {
+      ++this.syncCount;
+    };
+    Sync.prototype.executeCallback = function() {
+      if (typeof this.callback === "function") this.callback();
+    };
   };
-  Sync.prototype.decrement = function() {
-    --this.syncCount;
-    if(this.syncCount === 0) {
-      this.executeCallback();
-    }
-  };
-  Sync.prototype.increment = function() {
-    ++this.syncCount;
-  };
-  Sync.prototype.executeCallback = function() {
-    if (typeof this.callback === "function") this.callback();
-  };
+
 
   // Writer Singleton
   Writer = (function (){
