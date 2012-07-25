@@ -53,7 +53,7 @@
 
       writer.listen = function (msg) {
         var triples = msg.triples;
-        triples = triples.split(" . ").join(" .\n");
+        //triples = triples.split(" . ").join(" .\n");
         writer.stream.write(triples);
       };
 
@@ -79,9 +79,10 @@
 
     init = function () {
 
-      var query = {}, url;
+      var query = {}, url, triples;
 
       url = process.env.SPARQLURL;
+      triples = [];
 
       query.url = function (_) {
         if (!_) return url;
@@ -90,16 +91,31 @@
       };
 
       query.listen = function (msg) {
-        var query;
-        query = 'INSERT DATA {'+msg.triples+'}';
-          console.log(url+encodeURIComponent(query));
-        request( url+encodeURIComponent(query), function (error, response, body) {
+        triples.push(msg.triples);
+        if (triples.length > 100) query.write();
+      };
+
+      query.write = function (){
+        var insertQuery;
+        insertQuery = 'INSERT DATA {\n'+triples.join("")+'\n}';
+        triples = [];
+        query.execute(insertQuery, function (error, response, body) {
           if (error || response.statusCode !== 200) {
-            console.log("Unable to load triples:", msg.triples);
+            console.log("Unable to load triples:", insertQuery, error);
             return;
           }
-          console.log(error, response, body);
         });
+      };
+
+      query.flush = function () {
+        query.write();
+      };
+
+      query.execute = function (query, callback) {
+        request({
+          url : url+encodeURIComponent(query),
+          method : "POST"
+        }, callback);
       };
 
       return query;
@@ -132,12 +148,10 @@
     var query;
 
     query = [ 'prefix tcga:<http://purl.org/tcga/core#>',
-              'select ?lastModified ?url ?id where {',
-              '  ?id tcga:last-modified ?lastModified .',
-              '  ?id tcga:url ?url .',
+              'select distinct ?name ?id where {',
+              '  ?id rdfs:label ?name .',
               '}' ].join(' ');
 
-    console.log(SPARQLURL+encodeURIComponent(query));
     request({
         url : SPARQLURL+encodeURIComponent(query),
         headers : { "Accept" : "application/sparql-results+json" }
@@ -153,17 +167,21 @@
         bindings = JSON.parse(body).results.bindings;
 
         bindings.forEach(function (binding) {
-          var name, tokens;
-          tokens = binding.url.value.split("/");
-          name = tokens[tokens.length-1] === "" ? tokens[tokens.length-2] : tokens[tokens.length-1];
-          knownEntities[name] = binding;
+          knownEntities[binding.name.value] = binding;
         });
+
+        console.log('Found', bindings.length, 'entities.');
+
+        console.log('Beginning scrape of', ROOT_URL);
 
         scrape({
           target : ROOT_URL,
-          callback : function () { writer.close(); console.log("Scrape finished"); }
+          callback : function () {
+            Query.getInstance().flush();
+            writer.close();
+            console.log("Scrape finished");
+          }
         });
-
     });
   };
 
@@ -216,6 +234,10 @@
             scrapeChildren = false;
           }
 
+          if (name === 'lost+found/') return;
+
+          name = name.trim();
+
           // Things with extensions are files (e.g. reallylong_name.tiff)
           // TODO Use MIME types to determine files.
           if (name.match(/^.*\.[^\/]+$/)) {
@@ -243,25 +265,32 @@
               id : { value : id }
             };
           }
-          else id = knownEntities[name].id.value;
-
-          if (knownEntities[name].lastModified && knownEntities[name].lastModified.value >= lastModified) {
-            scrapeChildren = false;
-            console.log("Skipping children of", name, ", no updates since", lastModified);
+          else {
+            id = knownEntities[name].id.value;
+            if (type === types.archive || type === types.file) return;
           }
 
-          subject = tcga(id);
+          // if (knownEntities[url].lastModified && knownEntities[url].lastModified.value >= lastModified) {
+          //   scrapeChildren = false;
+          //   console.log("Skipping children of", name, ", no updates since", lastModified);
+          // }
+
+          subject = id.length === 36 ? tcga(id) : "<" + id + ">";
           tripleString = [
-            subject, "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>",  tcga(type), ".",
-            subject, "<http://www.w3.org/2000/01/rdf-schema#label>", literal(name), ".",
-            subject, tcga("url"), literal(url), ".",
-            subject, tcga("last-modified"), literal(lastModified), "."
+            subject, tcga("scrape-time"), literal(NOW), ".\n",
+            subject, "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>",  tcga(type), ".\n",
+            subject, "<http://www.w3.org/2000/01/rdf-schema#label>", literal(name), ".\n",
+            subject, tcga("url"), literal(url), ".\n",
           ];
+
+          if (type === types.file || types === types.archive) {
+            tripleString.push(subject, tcga("last-modified"), literal(lastModified), ".\n");
+          }
 
           if (type === types.file) {
             var ancestor;
             Object.keys(parent).forEach(function (ancestor) {
-              tripleString.push(subject, tcga(ancestor), parent[ancestor], ".");
+              tripleString.push(subject, tcga(ancestor), parent[ancestor], ".\n");
             });
           }
 
@@ -270,7 +299,7 @@
           //}
 
           hub.publish('/triples', [{
-            triples : tripleString.join(" ") + "\n",
+            triples : tripleString.join(" "),
             type : type,
             name : name
           }]);
@@ -315,9 +344,8 @@
 
   hub.subscribe('/triples', writer.listen);
 
+  console.log('Getting known entities from hub.')
+
   getKnownEntities();
-
-  console.log('Beginning scrape of', ROOT_URL);
-
 
 })( exports );
