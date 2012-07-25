@@ -271,11 +271,6 @@
             if (type === types.archive || type === types.file) return;
           }
 
-          // if (knownEntities[url].lastModified && knownEntities[url].lastModified.value >= lastModified) {
-          //   scrapeChildren = false;
-          //   console.log("Skipping children of", name, ", no updates since", lastModified);
-          // }
-
           subject = id.length === 36 ? tcga(id) : "<" + id + ">";
           tripleString = [
             subject, tcga("scrape-time"), literal(NOW), ".\n",
@@ -294,10 +289,6 @@
               tripleString.push(subject, tcga(ancestor), parent[ancestor], ".\n");
             });
           }
-
-          //if (type === 'data-type' && name === "bcgsc.ca_LAML.IlluminaGA_RNASeq.Level_3.1.0.0") {
-          //  hub.publish('/triples', [{ triples : body + "\n" + target + "\n" + row }]);
-          //}
 
           hub.publish('/triples', [{
             triples : tripleString.join(" "),
@@ -332,10 +323,6 @@
 
     });
   };
-
-  //logger = hub.subscribe('/triples', function ( msg ) {
-  //  console.log(msg.triples);
-  //});
 
   writer = Writer.getInstance();
 
