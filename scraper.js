@@ -3,13 +3,14 @@
   /*jshint node:true */
 
   var request, fs, hub, scrape, writer, Writer, ROOT_URL, getKnownEntities,
-      types, logger, uuid, knownEntities, Sync, SPARQLURL, Query, query;
+      types, logger, uuid, knownEntities, Sync, SPARQLURL, Query, query, NOW;
 
   ROOT_URL = process.env.ROOT_URL;
   SPARQLURL = process.env.SPARQLURL;
   request = require('request');
   hub = require('node-pubsub');
   fs = require('fs');
+  NOW = Date.now();
 
   // Generate a UUID
   uuid = function uuid(a){
