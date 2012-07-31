@@ -2,8 +2,8 @@
   'use strict';
   /*jshint node:true */
 
-  var request, fs, hub, scrape, writer, Writer, ROOT_URL, getKnownEntities,
-      types, logger, uuid, knownEntities, Sync, SPARQLURL, Query, query, NOW;
+  var request, fs, hub, scrape, writer, Writer, ROOT_URL, getKnownEntities, start,
+      types, logger, uuid, knownEntities, Sync, SPARQLURL, Query, query, NOW, Resource;
 
   ROOT_URL = process.env.ROOT_URL;
   SPARQLURL = process.env.SPARQLURL;
@@ -130,6 +130,10 @@
     };
 
   })();
+
+  Resource = function () {
+
+  };
 
   types = {
     9 : "DiseaseStudy",
@@ -273,7 +277,7 @@
               subject, tcga("firstSeen"), literal(NOW), ".\n",
               subject, "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>",  tcga(type), ".\n",
               subject, "<http://www.w3.org/2000/01/rdf-schema#label>", literal(name), ".\n",
-              subject, tcga("url"), literal(url), ".\n",
+              subject, tcga("url"), literal(url), ".\n"
             ];
 
             if (type === types.file || types === types.archive) {
@@ -336,16 +340,24 @@
     });
   };
 
-  writer = Writer.getInstance();
+  start = function () {
 
-  query = Query.getInstance().url(SPARQLURL);
+    writer = Writer.getInstance();
 
-  hub.subscribe('/triples', query.listen);
+    query = Query.getInstance().url(SPARQLURL);
 
-  hub.subscribe('/triples', writer.listen);
+    hub.subscribe('/triples', query.listen);
 
-  console.log('Getting known entities from hub.')
+    hub.subscribe('/triples', writer.listen);
 
-  getKnownEntities();
+    console.log('Getting known entities from hub.');
+
+    getKnownEntities();
+
+  };
+
+  exports.Resource = Resource;
+  exports.Query = Query;
+  exports.Start = start;
 
 })( exports );
