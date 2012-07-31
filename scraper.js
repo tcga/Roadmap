@@ -246,8 +246,8 @@
             scrapeChildren = false;
           }
 
-          // TODO when should this NOT be done (e.g. files)
-          if (type !== types.file) name = name.slice(0,-1); // Remove the trailing "/"
+          // Remove the trailing "/"
+          if (name.charAt(name.length-1) === "/") name = name.slice(0,-1);
 
           // If a file ends in .tar.gz or .tar.gz.md5, type it as an archive
           if (type === types.file && name.match(/\.tar\.gz($|\.md5$)/)) {
