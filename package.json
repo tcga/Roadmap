@@ -17,5 +17,12 @@
   "dependencies" : {
     "request" : "2.9.x",
     "node-pubsub" : "0.1.0"
+  },
+  "devDependencies": {
+      "mocha": "1.0.x",
+      "expect.js": "0.1.x"
+  },
+  "scripts": {
+      "test": "./node_modules/.bin/mocha"
   }
 }
