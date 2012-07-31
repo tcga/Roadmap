@@ -82,7 +82,7 @@
 
       var query = {}, url, triples;
 
-      url = process.env.SPARQLURL;
+      url = SPARQLURL || "http://example.com/sparql=";
       triples = [];
 
       query.url = function (_) {
@@ -338,7 +338,7 @@
 
   writer = Writer.getInstance();
 
-  query = Query.getInstance().url(process.env.SPARQLURL);
+  query = Query.getInstance().url(SPARQLURL);
 
   hub.subscribe('/triples', query.listen);
 
