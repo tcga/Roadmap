@@ -10,7 +10,7 @@
   request = require('request');
   hub = require('node-pubsub');
   fs = require('fs');
-  NOW = Date.now();
+  NOW = (new Date()).toISOString(); //add .slice(0,10) to get date only.
 
   // Generate a UUID
   uuid = function uuid(a){
@@ -132,15 +132,15 @@
   })();
 
   types = {
-    9 : "disease-study",
-    10 : "center-type",
-    11 : "center-domain",
-    12 : "platform",
-    13 : "data-type",
-    14 : "archive",
-    archive : "archive",
-    15 : "file",
-    file : "file"
+    9 : "DiseaseStudy",
+    10 : "CenterType",
+    11 : "CenterDomain",
+    12 : "Platform",
+    13 : "DataType",
+    14 : "Archive",
+    archive : "Archive",
+    15 : "File",
+    file : "File"
   };
 
   knownEntities = {};
@@ -261,33 +261,45 @@
             type = types.archive;
           }
 
+          // Either insert or update, based on whether this item exists in the known entities.
           if (!knownEntities[name]) {
             knownEntities[name] = {
-              id : { value : id }
+              id : { value : id },
+              newEntity : true
             };
+            subject = id.length === 36 ? tcga(id) : "<" + id + ">";
+            tripleString = [
+              subject, tcga("lastSeen"), literal(NOW), ".\n",
+              subject, tcga("firstSeen"), literal(NOW), ".\n",
+              subject, "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>",  tcga(type), ".\n",
+              subject, "<http://www.w3.org/2000/01/rdf-schema#label>", literal(name), ".\n",
+              subject, tcga("url"), literal(url), ".\n",
+            ];
+
+            if (type === types.file || types === types.archive) {
+              tripleString.push(subject, tcga("lastModified"), literal(lastModified), ".\n");
+            }
+
+            if (type === types.file) {
+              var ancestor;
+              Object.keys(parent).forEach(function (ancestor) {
+                // Make the first letter lowercase
+                var property = ancestor.charAt(0).toLowerCase() + ancestor.slice(1);
+                tripleString.push(subject, tcga(property), parent[ancestor], ".\n");
+              });
+            }
           }
           else {
             id = knownEntities[name].id.value;
-            if (type === types.archive || type === types.file) return;
-          }
+            subject = id.length === 36 ? tcga(id) : "<" + id + ">";
+            tripleString = [
+              subject, tcga("lastSeen"), literal(NOW), ".\n"
+            ];
 
-          subject = id.length === 36 ? tcga(id) : "<" + id + ">";
-          tripleString = [
-            subject, tcga("scrape-time"), literal(NOW), ".\n",
-            subject, "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>",  tcga(type), ".\n",
-            subject, "<http://www.w3.org/2000/01/rdf-schema#label>", literal(name), ".\n",
-            subject, tcga("url"), literal(url), ".\n",
-          ];
-
-          if (type === types.file || types === types.archive) {
-            tripleString.push(subject, tcga("last-modified"), literal(lastModified), ".\n");
-          }
-
-          if (type === types.file) {
-            var ancestor;
-            Object.keys(parent).forEach(function (ancestor) {
-              tripleString.push(subject, tcga(ancestor), parent[ancestor], ".\n");
-            });
+            // Additional URLS may need to be added for new entities, such as center types.
+            if (knownEntities[name].newEntity) {
+              tripleString.push(subject, tcga("url"), literal(url), ".\n");
+            }
           }
 
           hub.publish('/triples', [{
