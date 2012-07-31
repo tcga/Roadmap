@@ -1,6 +1,6 @@
 {
   "name" : "tcgascraper",
-  "version" : "0.0.1",
+  "version" : "0.0.2",
   "description" : "Scrapes the TCGA to RDF",
   "author" : {
     "name" : "David Robbins",
