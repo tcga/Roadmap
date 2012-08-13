@@ -6,7 +6,7 @@ Scraper indexes the files listed in the [TCGA's open access HTTP site](tcga-data
 
 The Schema used to represent resources in the TCGA is available as a [Turtle File](http://purl.org/tcga/core).
 
-As used below, the prefix ``tcga`` represents ``http://purl.org/tcga/core``.
+As used below, the prefix ``tcga`` represents ``http://purl.org/tcga/core``, while ``tcgaRoot`` represents ``https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/``.
 
 [Class](https://docs.google.com/open?id=0Bzu4cytkv4B8Y1VMVXNOMFhvaGM) and [Instance](https://docs.google.com/open?id=0Bzu4cytkv4B8V3lsc0VzQWE2c28) diagrams of the schema are also available.
 
@@ -24,11 +24,11 @@ See the [TCGA Data Primer](https://wiki.nci.nih.gov/display/TCGA/TCGA+Data+Prime
 
 Data Types correspond to the directory structure:
 
-``../disease-study/center-type/center-domain/platform/data-type/archive/file``
+``tcgaRoot:DiseaseStudy/CenterType/CenterDomain/Platform/DataType/Archive/File``
 
 e.g.
 
-``.../gbm/cgcc/mdanderson.org/mda_rppa_core/protein_exp/mdanderson.org_GBM.MDA_RPPA_Core.Level_2.1.0.0/mdanderson.org_GBM.MDA_RPPA_Core.SuperCurve.Level_2.00da2077-778c-418a-9c92-01febd970ed8.txt``
+``tcgaRoot:gbm/cgcc/mdanderson.org/mda_rppa_core/protein_exp/mdanderson.org_GBM.MDA_RPPA_Core.Level_2.1.0.0/mdanderson.org_GBM.MDA_RPPA_Core.SuperCurve.Level_2.00da2077-778c-418a-9c92-01febd970ed8.txt``
 
 ### Properties
 
