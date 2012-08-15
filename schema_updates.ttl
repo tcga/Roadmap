@@ -1,0 +1,60 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix tcga: <http://purl.org/tcga/core#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Property Equivalences. We use double rdfs:subPropertyOf since Allegrograph
+# does not support owl:equivalentProperty directly
+
+  tcga:last-modified rdfs:subPropertyOf tcga:lastModified .
+  tcga:last-modified rdfs:subPropertyOf tcga:lastModified .
+
+  tcga:data-type rdfs:subPropertyOf tcga:dataType .
+  tcga:dataType rdfs:subPropertyOf  tcga:data-type .
+
+  tcga:last-modified rdfs:subPropertyOf tcga:lastModified .
+  tcga:lastModified rdfs:subPropertyOf  tcga:last-modified .
+
+  tcga:disease-study rdfs:subPropertyOf tcga:diseaseStudy .
+  tcga:diseaseStudy rdfs:subPropertyOf  tcga:disease-study.
+
+  tcga:center-type rdfs:subPropertyOf tcga:centerType .
+  tcga:centerType rdfs:subPropertyOf  tcga:center-type .
+
+  tcga:center-domain rdfs:subPropertyOf tcga:centerDomain .
+  tcga:centerDomain rdfs:subPropertyOf  tcga:center-domain .
+
+# Class or Type Equivalences. Again, Allegrograph does not support the owl
+# version of these relationships.
+
+  tcga:file rdfs:subClassOf tcga:File .
+  tcga:File rdfs:subClassOf tcga:file .
+
+  tcga:platform rdfs:subClassOf tcga:Platform .
+  tcga:Platform rdfs:subClassOf tcga:platform .
+
+  tcga:archive rdfs:subClassOf tcga:Archive .
+  tcga:Archive rdfs:subClassOf tcga:archive .
+
+  tcga:data-type rdfs:subClassOf tcga:DataType .
+  tcga:DataType rdfs:subClassOf tcga:data-type .
+
+  tcga:center-domain rdfs:subClassOf tcga:CenterDomain .
+  tcga:CenterDomain rdfs:subClassOf tcga:center-domain .
+
+  tcga:center-type rdfs:subClassOf tcga:CenterType .
+  tcga:CenterType rdfs:subClassOf tcga:center-type .
+
+  tcga:disease-study rdfs:subClassOf tcga:DiseaseStudy .
+  tcga:DiseaseStudy rdfs:subClassOf tcga:disease-study .
+
+# Also run the following construct query to add firstSeen and lastSeen
+# timestamps, with the date taken from the latest last-modified date in
+# the repository at the time of the update.
+#
+#   CONSTRUCT {
+#     ?id tcga:firstSeen "2012-04-21T00:00:000Z" .
+#     ?id tcga:lastSeen "2012-04-21T00:00:000Z" .
+#   } WHERE {
+#     ?id tcga:lastModified ?date .
+#   }
