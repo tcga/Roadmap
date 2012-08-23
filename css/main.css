@@ -6,13 +6,13 @@ body {
   margin-bottom: 0px;
 }
 
-circle.disease {
+.disease {
   fill : goldenrod;
   stroke-width : 1.5px;
   stroke : #777;
 }
 
-circle.platform {
+.platform {
   fill : dodgerblue;
   stroke-width : 1.5px;
   stroke : #777;
@@ -26,4 +26,15 @@ circle.platform {
 
 text.nodeLabel {
   fill : #777;
+}
+
+.active {
+  stroke : red;
+  stroke-width : 2.5px;
+}
+
+text.active {
+  stroke : #777;
+  stroke-width : 0;
+  fill : red;
 }
