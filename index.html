@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+  <link rel="stylesheet" type="text/css" href="css/main.css">
+</head>
+<body>
+
+  <!-- Main Contents -->
+  <div class="container">
+
+    <!-- Header -->
+    <div class="hero-unit">
+      <h1>TCGA Scraper Figures</h1>
+      <p>This page contains reported figures, generated using the TCGA Scraper and demonstrating the reproducability of analysis therewith enabled.</p>
+      <p>
+        <a class="btn btn-primary btn-large" href="https://github.com/tcga/Scraper">Source</a> 
+        <a class="btn btn-primary btn-large" href="http://agalpha.mathbiol.org/repositories/tcga#query">SPARQL Endpoint</a>
+      </p>
+    </div>
+
+    <!-- File Counts -->
+    <h2>Total Number of Files in the TCGA By Date</h2>
+    <div class="row">
+      <div id="FileCount" class="span8">
+        <img src="img/loading.gif"></img>
+      </div>
+      <div class="span4">
+        <p>Logarithmic progression of TCGA files counted using the SPARQL endpoint developed as part of the preliminary work. This particular query can be accessed at http://bit.ly/TcgaNewFiles to update this figure which describes a sustained doubling of the number of files every 7 months for the last 2 ½ years, now reaching over ¼ million individual files in the public domain.</p>
+      </div>
+    </div>
+
+    <!-- Diseases vs. Platforms -->
+    <h2>Connections between Diseases and Platforms in the TCGA</h2>
+    <div class="row">
+      <div id="DiseasePlatforms" class="span8">
+        <img src="img/loading.gif"></img>
+      </div>
+      <div class="span4">
+        <p>Results of querying TCGA contents (presently 253,968 files, see Figure 1) for platforms and tumor types. This query can be updated through preliminary work SPARQL endpoint at http://bit.ly/JqDFBA. This specific result can also be shared, for example, using Google Fusion Tables (Gonzalez 2010): http://bit.ly/I23Uyb. The blue nodes represent platforms and the orange nodes indicate the tumor types. The lines between a platform and a tumor type indicate that there are files produced by that platform for that tumor type. Glioblastoma (GBM) is highlighted and, as a consequence, so are the lines for the platforms that were used to process those samples. Each of these linked platforms also represents a possible route to match an external result (obtained with that platform) for an unclassified sample, such as a tumor sample, a xenoline or a cell line. See Table 1 for query formulation.</p>
+      </div>
+    </div>
+
+
+  </div>
+
+  <!-- Javascript -->
+  <script type="text/javascript" src="lib/jquery.js"></script>
+  <script type="text/javascript" src="lib/bootstrap.js"></script>
+  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+  <script type="text/javascript" src="lib/d3.v2.js"></script>
+  <script type="text/javascript" src="lib/nv.d3.js"></script>
+  <script type="text/javascript" src="lib/grapin.js"></script>
+  <script type="text/javascript" src="lib/tcga-modified.js"></script>
+  <script type="text/javascript" src="lib/ScraperDemos.js"></script>
+
+</body>
+</html>

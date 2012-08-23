@@ -1,0 +1,29 @@
+body {
+  padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+}
+
+.navbar form {
+  margin-bottom: 0px;
+}
+
+circle.disease {
+  fill : goldenrod;
+  stroke-width : 1.5px;
+  stroke : #777;
+}
+
+circle.platform {
+  fill : dodgerblue;
+  stroke-width : 1.5px;
+  stroke : #777;
+}
+
+.link {
+  fill : none;
+  stroke : #ccc;
+  stroke-width : 1.5px;
+}
+
+text.nodeLabel {
+  fill : #777;
+}
