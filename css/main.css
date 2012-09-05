@@ -20,12 +20,12 @@ body {
 
 .link {
   fill : none;
-  stroke : #ccc;
+  stroke : #aaa;
   stroke-width : 1.5px;
 }
 
 text.nodeLabel {
-  fill : #777;
+  fill : black;
 }
 
 .active {
