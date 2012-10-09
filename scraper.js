@@ -86,7 +86,7 @@
         literal = function (value) { return '"'+value+'"'; };
         pre = body.match(/<pre>([\s\S]*)<\/pre>/);
         if (!pre) {
-          console.log("Could not parse", target);
+          console.log("Could not parse (pre)", target);
           return callCallback();
         } else pre = pre[1];
         rows = pre.match(/<a[^>]+>[^<]+<\/a>\s+\d{2}-\w{3}-\d{4}/g);
@@ -96,7 +96,7 @@
           var name, id, url, type, tripleString, lastModified, subject, scrapeChildren = true, level;
 
           name = row.match(/>([\s\S]*)</);
-          if (!name) console.log("Could not parse", row); else name = name[1];
+          if (!name) console.log("Could not parse (name)", row); else name = name[1];
           id = uuid();
           url = target + row.match(/href="(.*)"/)[1];
           level = target.split('/').length;
