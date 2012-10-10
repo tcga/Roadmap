@@ -20,7 +20,8 @@
 	},
 	"devDependencies": {
 			"mocha": "1.0.x",
-			"expect.js": "0.1.x"
+			"expect.js": "0.1.x",
+			"rdfstore": "0.7.0"
 	},
 	"scripts": {
 			"test": "./node_modules/.bin/mocha"
