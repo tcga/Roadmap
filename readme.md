@@ -1,6 +1,6 @@
 # TCGA Roadmap
 
-Scraper indexes the files listed in the [TCGA's open access HTTP site](tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/) as RDF.
+Scraper indexes the files listed in the [TCGA's open access HTTP site](http://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/) as RDF.
 
 ## Schema
 
