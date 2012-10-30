@@ -148,7 +148,8 @@
   getKnownEntities = function () {
     var query;
 
-    query = [ 'prefix tcga:<http://purl.org/tcga/core#>',
+    query = [ 'prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>',
+              'prefix tcga:<http://purl.org/tcga/core#>',
               'select distinct ?name ?id where {',
               '  ?id rdfs:label ?name .',
               '}' ].join(' ');
@@ -273,7 +274,7 @@
               subject, tcga("firstSeen"), literal(NOW), ".\n",
               subject, "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>",  tcga(type), ".\n",
               subject, "<http://www.w3.org/2000/01/rdf-schema#label>", literal(name), ".\n",
-              subject, tcga("url"), literal(url), ".\n",
+              subject, tcga("url"), literal(url), ".\n"
             ];
 
             if (type === types.file || types === types.archive) {
@@ -344,7 +345,7 @@
 
   hub.subscribe('/triples', writer.listen);
 
-  console.log('Getting known entities from hub.')
+  console.log('Getting known entities from hub.');
 
   getKnownEntities();
 
