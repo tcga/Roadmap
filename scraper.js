@@ -2,8 +2,8 @@
 	'use strict';
 	/*jshint node:true */
 
-	var request, fs, hub, scrape, writer, Writer, ROOT_URL, getKnownEntities,
-			types, logger, uuid, knownEntities, Sync, SPARQLURL, Query, query, NOW;
+	var request, fs, hub, scrape, writer, Writer, ROOT_URL, getKnownEntities, types, logger,
+		uuid, knownEntities, Sync, SPARQLURL, Query, query, NOW, diseaseFiles, getDiseaseFiles;
 
 	ROOT_URL = process.env.ROOT_URL;
 	SPARQLURL = process.env.SPARQLURL;
@@ -133,6 +133,7 @@
 
 	types = {
 		9 : "DiseaseStudy",
+		diseaseStudy : "DiseaseStudy",
 		10 : "CenterType",
 		11 : "CenterDomain",
 		12 : "Platform",
@@ -145,15 +146,17 @@
 
 	knownEntities = {};
 
-	getKnownEntities = function () {
+	diseaseFiles = {};
+
+	getKnownEntities = function (callback) {
 		var query;
 
-		query = [ 
+		query = [
 			'prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>',
 			'prefix tcga:<http://purl.org/tcga/core#>',
-			'select distinct ?name ?id where {',
-			' 	?id rdfs:label ?name .',
-			'}' 
+			'select distinct ?url ?id where {',
+			'	?id tcga:url ?url .',
+			'}'
 		].join(' ');
 
 		request({
@@ -171,22 +174,53 @@
 				bindings = JSON.parse(body).results.bindings;
 
 				bindings.forEach(function (binding) {
-					knownEntities[binding.name.value] = binding;
+					knownEntities[binding.url.value] = binding;
 				});
 
 				console.log('Found', bindings.length, 'entities.');
 
-				console.log('Beginning scrape of', ROOT_URL);
-
-				scrape({
-					target : ROOT_URL,
-					callback : function () {
-						Query.getInstance().flush();
-						writer.close();
-						console.log("Scrape finished");
-					}
-				});
+				callback();
 		});
+	};
+
+	getDiseaseFiles = function (disease, callback) {
+		var query;
+
+		diseaseFiles = {};
+
+		query = [
+			'prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>',
+			'prefix tcga:<http://purl.org/tcga/core#>',
+			'select distinct ?url ?id where {',
+			'	?id tcga:url ?url .',
+			'	?id tcga:diseaseStudy ?d .',
+			'	?d rdfs:label "'+disease+'" .',
+			'}'
+		].join(' ');
+
+		request({
+				url : SPARQLURL+encodeURIComponent(query),
+				headers : { "Accept" : "application/sparql-results+json" }
+			}, function ( error, response, body ) {
+
+				if (error || response.statusCode !== 200) {
+					console.log("Unable to query SPARQL endpoint for",disease,"files.");
+					return;
+				}
+
+				var bindings;
+
+				bindings = JSON.parse(body).results.bindings;
+
+				bindings.forEach(function (binding) {
+					diseaseFiles[binding.url.value] = binding;
+				});
+
+				console.log('Found', bindings.length, 'entities for', disease,'.');
+
+				callback();
+		});
+
 	};
 
 	scrape = function (options) {
@@ -234,8 +268,9 @@
 					lastModified = (new Date(row.match(/\d{2}-\w{3}-\d{4}/)[0])).toISOString().slice(0,10);
 					tripleString = "";
 
-					if ((process.env.TESTING && level >= 10) || level >= 15) {
+					if ((process.env.TESTING && level === 10) || level >= 15) {
 						scrapeChildren = false;
+						if (target.match(/ucec|thca|stad/)) scrapeChildren = true;
 					}
 
 					if (name === 'lost+found/') return;
@@ -265,11 +300,13 @@
 					}
 
 					// Either insert or update, based on whether this item exists in the known entities.
-					if (!knownEntities[name]) {
-						knownEntities[name] = {
+					if (!knownEntities[url] && !diseaseFiles[url]) {
+						var entity = {
 							id : { value : id },
 							newEntity : true
 						};
+						if (type !== types.file) knownEntities[url] = entity;
+						else diseaseFiles[url] = entity;
 						subject = id.length === 36 ? tcga(id) : "<" + id + ">";
 						tripleString = [
 							subject, tcga("lastSeen"), literal(NOW), ".\n",
@@ -293,14 +330,15 @@
 						}
 					}
 					else {
-						id = knownEntities[name].id.value;
+						if (knownEntities[url]) id = knownEntities[url].id.value;
+						else id = diseaseFiles[url].id.value;
 						subject = id.length === 36 ? tcga(id) : "<" + id + ">";
 						tripleString = [
 							subject, tcga("lastSeen"), literal(NOW), ".\n"
 						];
 
 						// Additional URLS may need to be added for new entities, such as center types.
-						if (knownEntities[name].newEntity) {
+						if (knownEntities[url].newEntity) {
 							tripleString.push(subject, tcga("url"), literal(url), ".\n");
 						}
 					}
@@ -312,8 +350,14 @@
 					}]);
 
 					if (scrapeChildren){
+						var child;
 						parent[type] = subject;
-						children.push({target:url, parent:JSON.parse(JSON.stringify(parent))});
+						child = {target:url, parent:JSON.parse(JSON.stringify(parent))};
+						if (type == types.diseaseStudy) {
+							child.type = type;
+							child.name = name;
+						}
+						children.push(child);
 					}
 
 				});
@@ -327,7 +371,13 @@
 								counter.decrement();
 								nextChild(children);
 							};
-							scrape(child);
+							if (child.type === types.diseaseStudy) {
+								getDiseaseFiles(child.name, function () {
+									scrape(child);
+								});
+							} else {
+								scrape(child);
+							}
 						}
 					};
 					nextChild(children);
@@ -339,16 +389,27 @@
 		});
 	};
 
-	writer = Writer.getInstance();
+	//writer = Writer.getInstance();
 
 	query = Query.getInstance().url(process.env.SPARQLURL);
 
 	hub.subscribe('/triples', query.listen);
 
-	hub.subscribe('/triples', writer.listen);
+	//hub.subscribe('/triples', writer.listen);
 
 	console.log('Getting known entities from hub.');
 
-	getKnownEntities();
+	getKnownEntities(function (err) {
+		if (err) console.log(err);
+		console.log('Beginning scrape of', ROOT_URL);
+		scrape({
+			target : ROOT_URL,
+			callback : function () {
+				Query.getInstance().flush();
+				// writer.close();
+				console.log("Scrape finished");
+			}
+		});
+	});
 
 })( exports );
