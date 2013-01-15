@@ -164,9 +164,15 @@
 		].join(' ');
 
 		request({
+				method : "POST",
 				url : SPARQLURL+encodeURIComponent(query),
 				headers : { "Accept" : "application/sparql-results+json" }
 			}, function ( error, response, body ) {
+
+				if (response.statusCode === 204) {
+					console.log('Found no known entities.');
+					return callback();
+				}
 
 				if (error || response.statusCode !== 200) {
 					console.log("Unable to query SPARQL endpoint");
@@ -183,7 +189,7 @@
 
 				console.log('Found', bindings.length, 'entities.');
 
-				callback();
+				return callback();
 		});
 	};
 
@@ -203,9 +209,15 @@
 		].join(' ');
 
 		request({
+				method : "POST",
 				url : SPARQLURL+encodeURIComponent(query),
 				headers : { "Accept" : "application/sparql-results+json" }
 			}, function ( error, response, body ) {
+
+				if (response.statusCode === 204) {
+					console.log("Found no entities for", disease, ".");
+					return callback();
+				}
 
 				if (error || response.statusCode !== 200) {
 					console.log("Unable to query SPARQL endpoint for",disease,"files.");
@@ -222,7 +234,7 @@
 
 				console.log('Found', bindings.length, 'entities for', disease,'.');
 
-				callback();
+				return callback();
 		});
 
 	};
