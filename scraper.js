@@ -101,8 +101,9 @@
 				insertQuery = 'INSERT DATA {\n'+triples.join("")+'\n}';
 				triples = [];
 				query.execute(insertQuery, function (error, response, body) {
-					if (error || response.statusCode !== 200) {
+					if (error || response.statusCode >= 300) {
 						console.log("Unable to load triples:", insertQuery, error);
+						console.log(response.statusCode, response.body);
 						return;
 					}
 				});
