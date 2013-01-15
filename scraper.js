@@ -354,7 +354,7 @@
 						];
 
 						// Additional URLS may need to be added for new entities, such as center types.
-						if (knownEntities[url].newEntity) {
+						if (knownEntities[url] && knownEntities[url].newEntity) {
 							tripleString.push(subject, tcga("url"), literal(url), ".\n");
 						}
 					}
