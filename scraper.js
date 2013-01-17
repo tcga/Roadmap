@@ -281,7 +281,12 @@
 					url = target + row.match(/href="(.*)"/)[1];
 					level = target.split('/').length;
 					type = types[level];
-					lastModified = (new Date(row.match(/[\d-]{10}/)[0])).toISOString().slice(0,10);
+					try {
+						lastModified = (new Date(row.match(/\s([\d-]{10})/)[1])).toISOString().slice(0,10);
+					} catch (e) {
+						console.log("Row:", row);
+						process.exit(1);
+					}
 					tripleString = "";
 
 					if ((process.env.TESTING && level === 10) || level >= 15) {
