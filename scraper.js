@@ -158,8 +158,19 @@
 			'prefix tcga:<http://purl.org/tcga/core#>',
 			'select distinct ?url ?id where {',
 			'	?id tcga:url ?url .',
-			'	?id a ?type .',
-			'	filter (!(?type = tcga:File))',
+			'	{',
+			'		?id a tcga:DiseaseStudy .',
+			'	} UNION {',
+			'		?id a tcga:CenterType .',
+			'	} UNION {',
+			'		?id a tcga:CenterDomain .',
+			'	} UNION {',
+			'		?id a tcga:Platform .',
+			'	} UNION {',
+			'		?id a tcga:DataType .',
+			'	} UNION {',
+			'		?id a tcga:Archive .',
+			'	}',
 			'}'
 		].join(' ');
 
