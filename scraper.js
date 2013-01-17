@@ -115,9 +115,8 @@
 
 			query.execute = function (query, callback) {
 				request({
-					url : url,//+encodeURIComponent(query),
-					method : "POST",
-					body : query
+					url : url+encodeURIComponent(query),
+					method : "POST"
 				}, callback);
 			};
 
