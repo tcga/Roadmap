@@ -269,7 +269,7 @@
 					console.log("Could not parse (pre)", target);
 					return callCallback();
 				} else pre = pre[1];
-				rows = pre.match(/<a[^>]+>[^<]+<\/a>\s+\d{2}-\w{3}-\d{4}/g);
+				rows = pre.match(/<a[^>]+>[^<]+<\/a>\s+[\d-]{10}/g);
 
 				if (rows) rows.forEach(function (row) {
 
@@ -281,7 +281,7 @@
 					url = target + row.match(/href="(.*)"/)[1];
 					level = target.split('/').length;
 					type = types[level];
-					lastModified = (new Date(row.match(/\d{2}-\w{3}-\d{4}/)[0])).toISOString().slice(0,10);
+					lastModified = (new Date(row.match(/[\d-]{10}/)[0])).toISOString().slice(0,10);
 					tripleString = "";
 
 					if ((process.env.TESTING && level === 10) || level >= 15) {
