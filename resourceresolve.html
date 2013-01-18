@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+</head>
+<body>
+  <p>Please append the resource ID as a hash to perform a lookup in the TCGA Roadmap, e.g.:</p>
+  <p><a href="http://purl.org/tcga/core#DiseaseStudy"><code>http://purl.org/tcga/core#DiseaseStudy</code></a></p>
+  <script>
+    (function () {
+      var resourceId, allegrographURL, purlFragment;
+
+      allegrographURL = "http://agalpha.mathbiol.org:10035/repositories/tcga#node/";
+      resourceId = document.location.hash.slice(1);
+      purlFragment = "http://purl.org/tcga/core#"
+
+      if (resourceId) {
+        document.location.href = encodeURI(allegrographURL + "<" + purlFragment + resourceId + ">");
+      }
+    })();
+  </script>
+</body>
+</html>
