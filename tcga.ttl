@@ -1,0 +1,125 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix tcga: <http://purl.org/tcga/core#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+tcga:DiseaseStudy a rdfs:Class;
+    rdfs:isDefinedBy <http://purl.org/tcga/core#>;
+    rdfs:label "Disease Study";
+    rdfs:comment """A disease study is the sum of results from all experiments for a specific cancer type (or tumor type) that TCGA is tasked to study. Within the project, a disease is referred to by its abbreviation.
+
+For example, Glioblastoma multiforme is represented by the abbreviation GBM.""" .
+
+tcga:CenterType a rdfs:Class;
+    rdfs:isDefinedBy <http://purl.org/tcga/core#>;
+    rdfs:label "Center Type";
+    rdfs:comment """A center can be either a single institution/research center, or a collection of institutions and research centers that perform the same function within TCGA. There are five center types that exist within this project: BCR, GCC, GSC, GDAC, DCC.
+
+For a list of all individual centers and their center types, see the Code Tables Report.""" .
+
+tcga:Center a rdfs:Class;
+    rdfs:isDefinedBy <http://purl.org/tcga/core#>;
+    rdfs:label "Center";
+    rdfs:comment """A center can be either a single institution/research center, or a collection of institutions and research centers that perform the same function within TCGA. There are five center types that exist within this project: BCR, GCC, GSC, GDAC, DCC.
+
+For a list of all individual centers and their center types, see the Code Tables Report.""" .
+
+tcga:Platform a rdfs:Class;
+    rdfs:isDefinedBy <http://purl.org/tcga/core#>;
+    rdfs:label "Platform";
+    rdfs:comment "A platform (within the scope of TCGA) is a vendor-specific technology for assaying or sequencing that could possibly be customized by a GSC or GCC." .
+
+tcga:DataType a rdfs:Class;
+    rdfs:isDefinedBy <http://purl.org/tcga/core#>;
+    rdfs:label "Data Type";
+    rdfs:comment "A data type is a label to categorize the many forms of platform data within the TCGA Network. Examples of data type include DNA Methylation, Copy Number Results and SNP." .
+
+tcga:Archive a rdfs:Class;
+    rdfs:isDefinedBy <http://purl.org/tcga/core#>;
+    rdfs:label "Archive";
+    rdfs:comment "An archive is a file that contains a collection of files and their metadata. In the context of TCGA, archives are the primary unit by which information is bundled: they are created and submitted to the DCC by data submission centers and made available for download via the TCGA Data Portal. Files are archived using tar and compressed with gzip and so they have the file extension .tar.gz. There are three types of TCGA archives: Data Archives, MAGE-TAB Archives and Auxiliary Archives." .
+
+tcga:File a rdfs:Class;
+    rdfs:isDefinedBy <http://purl.org/tcga/core#>;
+    rdfs:label "File";
+    rdfs:comment "Files represent the core data containers of the TCGA, and may be text or images." .
+
+tcga:url a rdf:Property;
+    rdfs:isDefinedBy <http://purl.org/tcga/core#>;
+    rdfs:label "URL";
+    rdfs:comment "The URL in the TCGA HTTP Open Access area where the given resource may be found." .
+
+tcga:diseaseStudy a rdf:Property;
+    rdfs:isDefinedBy <http://purl.org/tcga/core#>;
+    rdfs:label "diseaseStudy";
+    rdfs:comment "Relates a resource to the disease study that generated it.";
+    rdfs:domain tcga:File;
+    rdfs:range tcga:DiseaseStudy .
+
+tcga:centerType a rdf:Property;
+    rdfs:isDefinedBy <http://purl.org/tcga/core#>;
+    rdfs:label "centerType";
+    rdfs:comment "Relates a resource to the Center Type that generated it.";
+    rdfs:domain tcga:File;
+    rdfs:range tcga:CenterType .
+
+tcga:center a rdf:Property;
+    rdfs:isDefinedBy <http://purl.org/tcga/core#>;
+    rdfs:label "center";
+    rdfs:comment "Relates a resource to the Center that generated it.";
+    rdfs:domain tcga:File;
+    rdfs:range tcga:Center .
+
+tcga:platform a rdf:Property;
+    rdfs:isDefinedBy <http://purl.org/tcga/core#>;
+    rdfs:label "platform";
+    rdfs:comment "Relates a resource to the Platform that generated it.";
+    rdfs:domain tcga:File;
+    rdfs:range tcga:Platform .
+
+tcga:dataType a rdf:Property;
+    rdfs:isDefinedBy <http://purl.org/tcga/core#>;
+    rdfs:label "dataType";
+    rdfs:comment "Relates a resource to its TCGA Data Type.";
+    rdfs:domain tcga:File;
+    rdfs:range tcga:DataType .
+
+tcga:archive a rdf:Property;
+    rdfs:isDefinedBy <http://purl.org/tcga/core#>;
+    rdfs:label "archive";
+    rdfs:comment "Relates a resource to the TCGA Archive that contains it.";
+    rdfs:domain tcga:File;
+    rdfs:range tcga:Archive .
+
+tcga:lastSeen a rdf:Property;
+    rdfs:isDefinedBy <http://purl.org/tcga/core#>;
+    rdfs:label "lastSeen";
+    rdfs:comment "Date of the last scrape that included this entity.";
+    rdfs:domain
+        tcga:Archive,
+        tcga:Center,
+        tcga:CenterType,
+        tcga:DataType,
+        tcga:DiseaseStudy,
+        tcga:File,
+        tcga:Platform .
+
+tcga:firstSeen a rdf:Property;
+    rdfs:isDefinedBy <http://purl.org/tcga/core#>;
+    rdfs:label "firstSeen";
+    rdfs:comment "Date of the first scrape that included this entity.";
+    rdfs:range xsd:dateTime;
+    rdfs:domain
+        tcga:Archive,
+        tcga:Center,
+        tcga:CenterType,
+        tcga:DataType,
+        tcga:DiseaseStudy,
+        tcga:File,
+        tcga:Platform .
+
+tcga:lastModified a rdf:Property;
+    rdfs:isDefinedBy <http://purl.org/tcga/core#>;
+    rdfs:label "lastModified";
+    rdfs:comment "Date this entity was last modified, as provided by the TCGA Open Access HTTP site.";
+    rdfs:range xsd:date .
