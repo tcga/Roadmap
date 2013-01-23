@@ -54,8 +54,7 @@
 
 			writer.listen = function (msg) {
 				var triples = msg.triples;
-				//triples = triples.split(" . ").join(" .\n");
-				writer.stream.write(triples);
+				writer.stream.write(triples.join("\n"));
 			};
 
 			writer.close = function () {
@@ -92,13 +91,13 @@
 			};
 
 			query.listen = function (msg) {
-				triples.push(msg.triples);
-				if (triples.length > 100) query.write();
+				triples = triples.concat(msg.triples);
+				if (triples.length > 1000) query.write();
 			};
 
 			query.write = function (){
 				var insertQuery;
-				insertQuery = 'INSERT DATA {\n'+triples.join("")+'\n}';
+				insertQuery = 'INSERT DATA {\n'+triples.join("\n")+'\n}';
 				triples = [];
 				query.execute(insertQuery, function (error, response, body) {
 					if (error || response.statusCode >= 300) {
@@ -378,7 +377,7 @@
 					}
 
 					hub.publish('/triples', [{
-						triples : tripleString.join(" "),
+						triples : tripleString.join("").split("\n"),
 						type : type,
 						name : name
 					}]);
