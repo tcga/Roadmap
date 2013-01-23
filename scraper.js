@@ -82,12 +82,12 @@
 
 			var query = {}, url, triples;
 
-			url = process.env.SPARQLURL;
+			url = process.env.SPARQLURL.slice(0,-7);
 			triples = [];
 
 			query.url = function (_) {
 				if (!_) return url;
-				else url = _;
+				else url = _.slice(0,-7);
 				return query;
 			};
 
@@ -115,8 +115,11 @@
 
 			query.execute = function (query, callback) {
 				request({
-					url : url+encodeURIComponent(query),
-					method : "POST"
+					url : url,
+					method : "POST",
+					form : {
+						query : query
+					}
 				}, callback);
 			};
 
