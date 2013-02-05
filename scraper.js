@@ -97,7 +97,7 @@
 
 			query.write = function (){
 				var insertQuery;
-				insertQuery = 'INSERT DATA {\n'+triples.join("\n")+'\n}';
+				insertQuery = 'prefix franzOption_logQuery: <franz:yes>\n INSERT DATA {\n'+triples.join("\n")+'\n}';
 				triples = [];
 				query.execute(insertQuery, function (error, response, body) {
 					if (error || response.statusCode >= 300) {
@@ -157,6 +157,7 @@
 		query = [
 			'prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>',
 			'prefix tcga:<http://purl.org/tcga/core#>',
+			'prefix franzOption_logQuery: <franz:yes>',
 			'select distinct ?url ?id where {',
 			'	?id tcga:url ?url .',
 			'	{',
@@ -213,6 +214,7 @@
 		query = [
 			'prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>',
 			'prefix tcga:<http://purl.org/tcga/core#>',
+			'prefix franzOption_logQuery: <franz:yes>',
 			'select distinct ?url ?id where {',
 			'	?id tcga:url ?url .',
 			'	?id tcga:diseaseStudy ?d .',
