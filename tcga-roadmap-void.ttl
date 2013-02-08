@@ -1,0 +1,21 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix void: <http://rdfs.org/ns/void#> .
+@prefix : <#> .
+
+## your dataset
+<http://agalpha.mathbiol.org/repositories/tcga> rdf:type void:Dataset ;
+ foaf:homepage <http://datahub.io/dataset/tcga-roadmap> ;
+ dcterms:title "TCGA Roadmap" ;
+ dcterms:description "A Roadmap of the TCGA Open Access HTTP Repository" ;
+ dcterms:publisher <http://github.com/drobbins> ;
+ dcterms:source <http://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/> ;
+ dcterms:license <http://opendatacommons.org/licenses/pddl/1.0/> ;
+ void:sparqlEndpoint <http://agalpha.mathbiol.org/repositories/tcga> ;
+ void:dataDump <http://agalpha.mathbiol.org/repositories/tcga/statements> ;
+ void:vocabulary <http://www.w3.org/2004/02/skos/core#> ;
+ void:vocabulary <http://purl.org/tcga/core#> ;
+ void:vocabulary <http://www.w3.org/2000/01/rdf-schema#> ;
+ void:exampleResource <http://agalpha.mathbiol.org/repositories/tcga/statements?subj=<http://purl.org/tcga/core#c92261c2-84fe-4a15-9dd9-8bb89ca8301d>> .
