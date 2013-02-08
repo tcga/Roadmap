@@ -1,0 +1,119 @@
+# Cancer Study Full Names
+<http://purl.org/tcga/core#acc19cf9-9d72-4fe9-8d5b-fe52388f76bc> <http://purl.org/tcga/core#fullName> "Adrenocortical carcinoma" .
+<http://purl.org/tcga/core#3ee09f2a-3e6a-4f35-a0e6-7151ea3648f0> <http://purl.org/tcga/core#fullName> "Bladder Urothelial Carcinoma" .
+<http://purl.org/tcga/core#7427a6e8-76a3-40eb-b704-c26747318e20> <http://purl.org/tcga/core#fullName> "Breast invasive carcinoma" .
+<http://purl.org/tcga/core#f4653f27-a886-4206-ac57-d57908347b27> <http://purl.org/tcga/core#fullName> "Cervical squamous cell carcinoma and endocervical adenocarcinoma" .
+<http://purl.org/tcga/core#ca80832e-b8a0-4732-bc6e-c18ff038da09> <http://purl.org/tcga/core#fullName> "Controls" .
+<http://purl.org/tcga/core#7ebccf6a-268e-4dc1-bc5b-8b1513ee5d92> <http://purl.org/tcga/core#fullName> "Colon adenocarcinoma" .
+<http://purl.org/tcga/core#374e19ea-b1d3-494d-a297-266dac065ee3> <http://purl.org/tcga/core#fullName> "Lymphoid Neoplasm Diffuse Large B-cell Lymphoma" .
+<http://purl.org/tcga/core#19a5dd4f-f83f-42f2-b62f-e21c0f6245c0> <http://purl.org/tcga/core#fullName> "Esophageal carcinoma" .
+<http://purl.org/tcga/core#76e3f705-48fc-4050-bf24-c4e484ad3f81> <http://purl.org/tcga/core#fullName> "Glioblastoma multiforme" .
+<http://purl.org/tcga/core#0ddb4a4b-9341-4bad-acb0-74bc02cc0720> <http://purl.org/tcga/core#fullName> "Head and Neck squamous cell carcinoma" .
+<http://purl.org/tcga/core#625632f2-76bc-4758-adf0-9a425e4a2d81> <http://purl.org/tcga/core#fullName> "Kidney Chromophobe" .
+<http://purl.org/tcga/core#6bdf222d-442c-4365-b630-d94fc2179375> <http://purl.org/tcga/core#fullName> "Kidney renal clear cell carcinoma" .
+<http://purl.org/tcga/core#5ba1eb35-15df-4ac7-8da8-0707b492671b> <http://purl.org/tcga/core#fullName> "Kidney renal papillary cell carcinoma" .
+<http://purl.org/tcga/core#da4455c9-16f3-4135-ad49-7c835b910d27> <http://purl.org/tcga/core#fullName> "Acute Myeloid Leukemia" .
+<http://purl.org/tcga/core#d412c87d-c0e3-492b-ac7a-402253aa42a7> <http://purl.org/tcga/core#fullName> "Chronic Lymphocytic Leukemia" .
+<http://purl.org/tcga/core#9521e680-284e-42eb-9664-2290b0723ee6> <http://purl.org/tcga/core#fullName> "Chronic Myelogenous Leukemia" .
+<http://purl.org/tcga/core#342a5093-f12c-41a1-948b-9e6c934d5b5b> <http://purl.org/tcga/core#fullName> "Brain Lower Grade Glioma" .
+<http://purl.org/tcga/core#25783c81-b778-441f-b546-47660d9699e7> <http://purl.org/tcga/core#fullName> "Liver hepatocellular carcinoma" .
+<http://purl.org/tcga/core#8fa87ea3-5a74-4af9-9c16-78283b549d5e> <http://purl.org/tcga/core#fullName> "Lymphoid Neoplasm Non-Hodgkins Lymphoma" .
+<http://purl.org/tcga/core#cf044c19-38dd-4c2e-9b3a-51425d952cdc> <http://purl.org/tcga/core#fullName> "Lung adenocarcinoma" .
+<http://purl.org/tcga/core#45dae360-832f-448d-b569-3546cd7fd2cb> <http://purl.org/tcga/core#fullName> "Lung squamous cell carcinoma" .
+<http://purl.org/tcga/core#5a3ea126-9548-45ea-a144-642c2a6dee3f> <http://purl.org/tcga/core#fullName> "Mesothelioma" .
+<http://purl.org/tcga/core#10c9b85b-e98f-4993-9cb2-f54142e3f886> <http://purl.org/tcga/core#fullName> "Miscellaneous" .
+<http://purl.org/tcga/core#23e6e781-22de-4a0e-b3ec-83d1910781ed> <http://purl.org/tcga/core#fullName> "Ovarian serous cystadenocarcinoma" .
+<http://purl.org/tcga/core#14094ad3-8c0f-4da0-81a2-23bce00c0fcc> <http://purl.org/tcga/core#fullName> "Pancreatic adenocarcinoma" .
+<http://purl.org/tcga/core#c4127c6d-1958-4a6a-a3aa-34253592a615> <http://purl.org/tcga/core#fullName> "Pheochromocytoma and Paraganglioma" .
+<http://purl.org/tcga/core#1ccc7de4-4c16-4bd7-be77-f5dffc8c16e6> <http://purl.org/tcga/core#fullName> "Prostate adenocarcinoma" .
+<http://purl.org/tcga/core#68ead339-f1de-410a-8b55-686c0a75419a> <http://purl.org/tcga/core#fullName> "Rectum adenocarcinoma" .
+<http://purl.org/tcga/core#d5aaf6c2-ad91-47d7-b441-40346d7ad7da> <http://purl.org/tcga/core#fullName> "Sarcoma" .
+<http://purl.org/tcga/core#2f6b163f-e167-4bd8-984b-00e4b7bf8f37> <http://purl.org/tcga/core#fullName> "Skin Cutaneous Melanoma" .
+<http://purl.org/tcga/core#840ed78c-3077-42fa-a4cb-972eec5755fd> <http://purl.org/tcga/core#fullName> "Stomach adenocarcinoma" .
+<http://purl.org/tcga/core#d68b65b9-ce1b-47fc-8aa4-41b3cf3fc12e> <http://purl.org/tcga/core#fullName> "Thyroid carcinoma" .
+<http://purl.org/tcga/core#201259b7-fbaa-4915-b65b-6e0dc7681609> <http://purl.org/tcga/core#fullName> "Uterine Corpus Endometrioid Carcinoma" .
+<http://purl.org/tcga/core#8b911792-1e8d-4191-bbeb-6efbf14916ed> <http://purl.org/tcga/core#fullName> "Uterine Carcinosarcoma" .
+
+
+# DBPedia (http://dbpedia.org) Links
+<http://purl.org/tcga/core#acc19cf9-9d72-4fe9-8d5b-fe52388f76bc> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Adrenocortical_carcinoma> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#3ee09f2a-3e6a-4f35-a0e6-7151ea3648f0> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Bladder_urothelial_carcinoma> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#7427a6e8-76a3-40eb-b704-c26747318e20> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Breast_cancer> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#f4653f27-a886-4206-ac57-d57908347b27> <http://www.w3.org/2002/07/owl#sameAs> <http://dpedia.org/resource/Cervical_cancer> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#7ebccf6a-268e-4dc1-bc5b-8b1513ee5d92> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Colorectal_cancer> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#374e19ea-b1d3-494d-a297-266dac065ee3> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Diffuse_large_B-cell_lymphoma> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#19a5dd4f-f83f-42f2-b62f-e21c0f6245c0> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Esophageal_cancer> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#76e3f705-48fc-4050-bf24-c4e484ad3f81> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Glioblastoma_multiforme> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#0ddb4a4b-9341-4bad-acb0-74bc02cc0720> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Head_and_neck_cancer> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#625632f2-76bc-4758-adf0-9a425e4a2d81> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Renal_cell_carcinoma> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#6bdf222d-442c-4365-b630-d94fc2179375> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Renal_cell_carcinoma> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#5ba1eb35-15df-4ac7-8da8-0707b492671b> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Renal_cell_carcinoma> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#da4455c9-16f3-4135-ad49-7c835b910d27> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Acute_myeloid_leukemia> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#d412c87d-c0e3-492b-ac7a-402253aa42a7> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/B-cell_chronic_lymphocytic_leukemia> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#9521e680-284e-42eb-9664-2290b0723ee6> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Chronic_myelogenous_leukemia> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#342a5093-f12c-41a1-948b-9e6c934d5b5b> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Glioma> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#25783c81-b778-441f-b546-47660d9699e7> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Hepatocellular_carcinoma> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#8fa87ea3-5a74-4af9-9c16-78283b549d5e> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Non-Hodgkin_lymphoma> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#cf044c19-38dd-4c2e-9b3a-51425d952cdc> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Adenocarcinoma> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#45dae360-832f-448d-b569-3546cd7fd2cb> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Non-small-cell_lung_carcinoma> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#5a3ea126-9548-45ea-a144-642c2a6dee3f> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Mesothelioma> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#23e6e781-22de-4a0e-b3ec-83d1910781ed> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Serous_cystadenocarcinoma> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#14094ad3-8c0f-4da0-81a2-23bce00c0fcc> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Pancreatic_cancer> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#c4127c6d-1958-4a6a-a3aa-34253592a615> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/page/Paraganglioma> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#1ccc7de4-4c16-4bd7-be77-f5dffc8c16e6> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Prostate_cancer> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#68ead339-f1de-410a-8b55-686c0a75419a> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Colorectal_cancer> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#d5aaf6c2-ad91-47d7-b441-40346d7ad7da> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Sarcoma> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#2f6b163f-e167-4bd8-984b-00e4b7bf8f37> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Melanoma> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#840ed78c-3077-42fa-a4cb-972eec5755fd> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Stomach_cancer> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#d68b65b9-ce1b-47fc-8aa4-41b3cf3fc12e> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Thyroid_cancer> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#201259b7-fbaa-4915-b65b-6e0dc7681609> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Carcinosarcoma> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#8b911792-1e8d-4191-bbeb-6efbf14916ed> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Carcinosarcoma> <http://purl.org/tcga/core#dbpedia-links> .
+<http://purl.org/tcga/core#8b911792-1e8d-4191-bbeb-6efbf14916ed> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Uterine_sarcoma> <http://purl.org/tcga/core#dbpedia-links> .
+
+
+# LinkedCT (http://linkedct.org) Links
+<http://purl.org/tcga/core#acc19cf9-9d72-4fe9-8d5b-fe52388f76bc> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/adrenocortical-carcinoma> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#acc19cf9-9d72-4fe9-8d5b-fe52388f76bc> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/adrenocortical-carcinoma-acc> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#3ee09f2a-3e6a-4f35-a0e6-7151ea3648f0> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/infiltrating-bladder-urothelial-carcinoma> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#7427a6e8-76a3-40eb-b704-c26747318e20> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/invasive-breast-carcinoma> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#f4653f27-a886-4206-ac57-d57908347b27> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/cervical-carcinoma> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#f4653f27-a886-4206-ac57-d57908347b27> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/adenocarcinoma-of-the-cervix/> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#7ebccf6a-268e-4dc1-bc5b-8b1513ee5d92> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/adenocarcinoma-of-the-colon>
+<http://purl.org/tcga/core#7ebccf6a-268e-4dc1-bc5b-8b1513ee5d92> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/colon-cancer> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#374e19ea-b1d3-494d-a297-266dac065ee3> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/lymphoma-b-cell> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#19a5dd4f-f83f-42f2-b62f-e21c0f6245c0> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/esophageal-carcinoma-squamous-cell-carcinoma-adenocarcinoma> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#76e3f705-48fc-4050-bf24-c4e484ad3f81> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/glioblastoma-multiforme> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#0ddb4a4b-9341-4bad-acb0-74bc02cc0720> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/head-and-neck-squamous-cell-carcinoma> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#625632f2-76bc-4758-adf0-9a425e4a2d81> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/kidney-carcinoma> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#6bdf222d-442c-4365-b630-d94fc2179375> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/kidney-carcinoma> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#6bdf222d-442c-4365-b630-d94fc2179375> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/clear-cell-renal-cell-carcinoma>. 
+<http://purl.org/tcga/core#6bdf222d-442c-4365-b630-d94fc2179375> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/clear-cell-renal-carcinoma> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#5ba1eb35-15df-4ac7-8da8-0707b492671b> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/kidney-carcinoma> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#5ba1eb35-15df-4ac7-8da8-0707b492671b> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/papillary-cell-renal-carcinoma> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#da4455c9-16f3-4135-ad49-7c835b910d27> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/leukemia> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#da4455c9-16f3-4135-ad49-7c835b910d27> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/leukemia-myeloid-acute> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#d412c87d-c0e3-492b-ac7a-402253aa42a7> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/chronic-lymphocytic-leukemia> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#9521e680-284e-42eb-9664-2290b0723ee6> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/chronic-myelogenous-leukemia> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#342a5093-f12c-41a1-948b-9e6c934d5b5b> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/low-grade-gliomas> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#342a5093-f12c-41a1-948b-9e6c934d5b5b> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/glioma> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#342a5093-f12c-41a1-948b-9e6c934d5b5b> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/gliomas> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#342a5093-f12c-41a1-948b-9e6c934d5b5b> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/low-grade-gliomas> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#25783c81-b778-441f-b546-47660d9699e7> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/hepatocellular-carcinoma> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#8fa87ea3-5a74-4af9-9c16-78283b549d5e> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/ebv-positive-non-hodgkins-lymphoma> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#cf044c19-38dd-4c2e-9b3a-51425d952cdc> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/lung-adenocarcinoma> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#45dae360-832f-448d-b569-3546cd7fd2cb> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/lung-carcinoma> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#5a3ea126-9548-45ea-a144-642c2a6dee3f> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/mesothelioma> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#23e6e781-22de-4a0e-b3ec-83d1910781ed> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/ovarian-serous-cystadenocarcinoma> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#14094ad3-8c0f-4da0-81a2-23bce00c0fcc> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/pancreatic-adenocarcinoma> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#c4127c6d-1958-4a6a-a3aa-34253592a615> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/malignant-progressive-pheochromocytoma-and-paraganglioma-ppgl> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#1ccc7de4-4c16-4bd7-be77-f5dffc8c16e6> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/prostate-adenocarcinoma> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#68ead339-f1de-410a-8b55-686c0a75419a> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/colorectal-adenocarcinoma> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#68ead339-f1de-410a-8b55-686c0a75419a> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/adenocarcinoma-of-rectum> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#d5aaf6c2-ad91-47d7-b441-40346d7ad7da> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/sarcoma> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#2f6b163f-e167-4bd8-984b-00e4b7bf8f37> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/skin-melanoma> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#2f6b163f-e167-4bd8-984b-00e4b7bf8f37> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/cutaneous-melanoma> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#840ed78c-3077-42fa-a4cb-972eec5755fd> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/adenocarcinoma-of-stomach> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#d68b65b9-ce1b-47fc-8aa4-41b3cf3fc12e> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/thyroid-carcinoma> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#201259b7-fbaa-4915-b65b-6e0dc7681609> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/endometrioid-carcinoma> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#201259b7-fbaa-4915-b65b-6e0dc7681609> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/carcinoma-of-the-uterus> <http://purl.org/tcga/core#linkedct-links> .
+<http://purl.org/tcga/core#8b911792-1e8d-4191-bbeb-6efbf14916ed> <http://www.w3.org/2002/07/owl#sameAs> <http://linkedct.org/resource/condition/uterine-carcinosarcoma> <http://purl.org/tcga/core#linkedct-links> .
