@@ -18,7 +18,7 @@ function deleteScript (offset) {
     return '' +
         'var lastSeen, subject, subjects, triples;\n' +
         'lastSeen = "<http://purl.org/tcga/core#lastSeen>";\n' +
-        'subjects = store.runSparql("select distinct ?s where { ?s ?p ?o . } limit '+stepSize+' offset '+offset+'");\n' +
+        'subjects = store.runSparql("select distinct ?s where { ?s <http://purl.org/tcga/core#lastSeen> ?o . } limit '+stepSize+' offset '+offset+'");\n' +
         'subjects.forEach(function (sub) {\n' +
         '    subject = sub[0];\n' +
         '    triples = store.getTriplesArray(subject, lastSeen);\n' +
@@ -29,7 +29,7 @@ function deleteScript (offset) {
         '});\n';
 }
 
-var subjects =  'subjects = store.runSparql("select distinct ?s where { ?s ?p ?o . } limit 1000000");' +
+var subjects =  'subjects = store.runSparql("select distinct ?s where { ?s <http://purl.org/tcga/core#lastSeen> ?o . }");' +
                 'subjects.count()';
 
 runScript(subjects, function (e, r, b) {
