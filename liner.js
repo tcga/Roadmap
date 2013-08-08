@@ -8,3 +8,7 @@
   };
 
 }).call(this);
+
+/*
+//@ sourceMappingURL=liner.js.map
+*/

@@ -7,31 +7,58 @@ Docer converts a line into a doc.
 The type hash contains the `tcga:type` of objects based on the length of their url.split
 
     types =
-        10 : "DiseaseStudy",
+        9 : "DiseaseStudy",
         diseaseStudy : "DiseaseStudy",
-        11 : "CenterType",
-        12 : "CenterDomain",
-        13 : "Platform",
-        14 : "DataType",
-        15 : "Archive",
+        10 : "CenterType",
+        11 : "CenterDomain",
+        12 : "Platform",
+        13 : "DataType",
+        14 : "Archive",
         archive : "Archive",
-        16 : "File",
+        15 : "File",
         file : "File"
 
-    module.exports = (url, line) ->
-        tokens = url.split "/"
-        type = if (url.slice -1) is "/" then types[tokens.length] else types.file
-        name = if type isnt types.file then tokens[tokens.length-2] else tokens[tokens.length-1]
+## Utility Functions
+
+    typer = (tokens, href) ->
+        type = types[tokens.length]
+        if href.match /^.*\.[^\/]+$/ # things with extensions are files
+            type = types.file
+        if href.match /\.tar\.gz($|\.md5$)/ # .tar.gz and .tar.gz.md5 files are archives
+            type = types.archive
+        type
+
+    namer = (href) ->
+        name = if (href.slice -1) is "/" then href.slice 0,-1 else href
+
+    urler = (parentUrl, name, type) ->
+        url = parentUrl + name
+        # Append a trailing / to directories
+        unless type is types.file or name.match /\.tar\.gz($|\.md5$)/
+            url = url + "/"
+        url
+
+    addFileAssociations = (doc, tokens) ->
+        doc.diseaseStudy = tokens[8]
+        doc.centerType = tokens[9]
+        doc.centerDomain = tokens[10]
+        doc.platform = tokens[11]
+        doc.dataType = tokens[12]
+        doc.archive = tokens[13]
+
+
+## Docer function
+
+    module.exports = (parentUrl, line) ->
+        tokens = parentUrl.split "/"
+        href = (line.match /href="(.*)"/)[1]
+        type = typer tokens, href
+        name = namer href
+        url = urler parentUrl, name, type
         doc =
             url: url
             type: type
             name: name
             lastModified: line.slice -10
-        if type is types.file
-            doc.diseaseStudy = tokens[8]
-            doc.centerType = tokens[9]
-            doc.centerDomain = tokens[10]
-            doc.platform = tokens[11]
-            doc.dataType = tokens[12]
-            doc.archive = tokens[13]
-        doc
+        addFileAssociations doc, tokens if type is types.file
+        doc ? {}

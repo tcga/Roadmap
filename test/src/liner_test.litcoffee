@@ -15,7 +15,15 @@ Writing to module.exports, per the [nodeunit examples](https://github.com/caolan
 The setup function simply contains the source documents to be lined.
 
         setUp: (cb) ->
-            @tumor = "<pre>      <a href=\"?C=N;O=D\">Name</a>                                           <a href=\"?C=M;O=A\">Last modified</a>      <a href=\"?C=S;O=A\">Size</a>  <hr>      <a href=\"/tcgafiles/ftp_auth/distro_ftpusers/anonymous/\">Parent Directory</a>                                                    -   
+
+The contents of the TCGA [tumor page](https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/)
+
+            @tumor = "<html><head>
+              <title>Index of /tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor</title>
+             </head>
+             <body>
+            <h1>Index of /tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor</h1>
+            <pre>      <a href=\"?C=N;O=D\">Name</a>                                           <a href=\"?C=M;O=A\">Last modified</a>      <a href=\"?C=S;O=A\">Size</a>  <hr>      <a href=\"/tcgafiles/ftp_auth/distro_ftpusers/anonymous/\">Parent Directory</a>                                                    -   
                   <a href=\"README_BCR.txt\">README_BCR.txt</a>                                 2012-07-27 16:28  846   
                   <a href=\"README_MAF.txt\">README_MAF.txt</a>                                 2012-07-27 16:29  898   
                   <a href=\"acc/\">acc/</a>                                           2013-07-12 21:35    -   
@@ -55,6 +63,8 @@ The setup function simply contains the source documents to be lined.
                   <a href=\"ucs/\">ucs/</a>                                           2013-07-03 18:22    -   
                   <a href=\"uvm/\">uvm/</a>                                           2013-05-10 03:02    -   
             <hr></pre>
+
+            </body></html>
             "
             cb()
 
@@ -67,6 +77,13 @@ Just a sanity test to ensure everything is kosher.
 Test the line count for the tumor. There should be the correct number of lines.
 
         lineCount: (assert) ->
-            lineCount = liner(@tumor).length
+            lineCount = (liner @tumor).length
             assert.equal lineCount, 38, "Wrong number of lines"
+            assert.done()
+
+Test a particular line
+
+        gbmLine: (assert) ->
+            lines = liner @tumor
+            assert.equal lines[10], "<a href=\"gbm/\">gbm/</a>                                           2009-01-29"
             assert.done()

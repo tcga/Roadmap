@@ -3,6 +3,8 @@ module.exports = (grunt) ->
         pkg: grunt.file.readJSON 'package.json'
         coffee:
             source:
+                options:
+                    sourceMap: true
                 expand: true
                 flatten: true
                 cwd: 'src'
@@ -10,6 +12,8 @@ module.exports = (grunt) ->
                 dest: ''
                 ext: '.js'
             tests:
+                options:
+                    sourceMap: true
                 expand: true
                 flatten: true
                 cwd: 'test/src'
