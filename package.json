@@ -24,6 +24,7 @@
     "grunt": "~0.4.1",
     "nodeunit": "~0.8.1",
     "grunt-contrib-watch": "~0.5.1",
-    "source-map-support": "~0.2.1"
+    "source-map-support": "~0.2.1",
+    "nock": "~0.22.1"
   }
 }

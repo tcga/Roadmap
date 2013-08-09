@@ -1,7 +1,7 @@
 module.exports = (grunt) ->
     grunt.initConfig
         pkg: grunt.file.readJSON 'package.json'
-        coffee:
+        coffee: # Compile Coffeescripts
             source:
                 options:
                     sourceMap: true
@@ -20,9 +20,9 @@ module.exports = (grunt) ->
                 src: ['*coffee']
                 dest: 'test'
                 ext: '.js'
-        nodeunit:
+        nodeunit: # Run unit tests
             all: ['test/*_test.js']
-        watch:
+        watch: # Watch files for changes to re-run compile and tests
             files: ['src/*coffee', 'test/src/*coffee']
             tasks: ['coffee', 'nodeunit']
 

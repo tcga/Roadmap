@@ -17,17 +17,23 @@
 
   (require('source-map-support')).install();
 
+  if (process.env.TESTING) {
+    require('./test/mocks');
+  }
+
+  if (process.env.TESTING) {
+    console.log("Testing");
+  }
+
   indexqueue = async.queue(function(parentDoc, cb) {
     return request(parentDoc.url, function(err, resp, body) {
       var line, lines, _fn, _i, _len;
+      console.log(body);
       lines = liner(body);
       _fn = function(line) {
         var doc;
         doc = docer(parentDoc.url, line);
-        hub.publish('/docs', [doc]);
-        if ((doc.url.slice(-1)) === "/") {
-          return indexqueue.push(doc);
-        }
+        return hub.publish('/docs', [doc]);
       };
       for (_i = 0, _len = lines.length; _i < _len; _i++) {
         line = lines[_i];
