@@ -1,0 +1,18 @@
+{
+  "name": "Roadmap",
+  "version": "0.0.0",
+  "description": "",
+  "scripts": {
+    "test": "jasmine-node --coffee --autotest --watch ./ --color spec/"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^0.9.0",
+    "request": "^2.49.0",
+    "coffee-script": "^1.8.0"
+  },
+  "devDependencies": {
+    "jasmine-node": "^1.14.5"
+  }
+}
