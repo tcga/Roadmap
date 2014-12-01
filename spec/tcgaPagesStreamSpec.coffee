@@ -15,3 +15,21 @@ describe "TCGA Pages Stream", ->
 		options = rootURL: "http://example.com"
 		pagesStream = new TCGAPagesStream options
 		expect(pagesStream.rootURL).toEqual options.rootURL
+
+describe "TCGA Pages Stream _read method", ->
+
+    request = require "request"
+
+    pagesStream = {}
+    options = rootURL: "http://example.com"
+
+    beforeEach ->
+        pagesStream = new TCGAPagesStream options
+
+    it "method reads from the rootURL", ->
+        spy = spyOn request, "get"
+            .andCallFake (url, options, callback) ->
+                callback? null, {}, "Body"
+        pagesStream._read()
+        expect(spy).toHaveBeenCalled()
+        expect(spy.mostRecentCall.args[0]).toEqual options.rootURL
