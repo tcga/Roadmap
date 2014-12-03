@@ -12,8 +12,8 @@ class TCGAPagesStore extends stream.Readable
 
 	_read: (done) ->
 		request.get uri: @rootURL, (err, resp, body) =>
-			$ = cheerio.load body
-			uri = resp.request.uri.href
+			$     = cheerio.load body
+			uri   = resp.request.uri.href
 			links = $('pre a')
 				.slice 4
 				.filter (i, el) -> $(el).attr("href").slice(-1) is "/"
