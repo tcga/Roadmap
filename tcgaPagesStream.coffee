@@ -8,7 +8,7 @@ class TCGAPagesStore extends stream.Readable
 	constructor: (@options) ->
 		super objectMode: true
 		@rootURL = @options?.rootURL
-		@_q      = async.queue (task, done) -> done()
+		@_initializeQueue()
 
 	_read: (done) ->
 		request.get uri: @rootURL, (err, resp, body) =>
@@ -21,6 +21,10 @@ class TCGAPagesStore extends stream.Readable
 				.get()
 			@_q.push links
 			done?()
+
+	_initializeQueue: ->
+		@_q = async.queue (task, done) -> done()
+		@_q.pause()
 
 
 
