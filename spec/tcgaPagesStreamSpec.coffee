@@ -48,12 +48,17 @@ describe "TCGA Pages Stream", ->
             spy = spyOn pagesStream._q, "push"
                 .andCallThrough()
             spyOn request, "get"
-                .andCallFake (options, callback) ->
-                    callback? null, {request: uri: href: options.uri}, rootHtml
+                .andCallFake (new FakeGetter [rootHtml]).get
             pagesStream._read ->
                 done()
             expect(spy).toHaveBeenCalled()
             expect(pagesStream._q.length()).toBe 3
+
+class FakeGetter
+    constructor: (@responses) ->
+        @count = 0
+    get: (options, callback) => # fat arrow prevents rebinding
+        callback? null, {request: uri: href: options.uri}, @responses[@count++]
 
 rootHtml = """
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
