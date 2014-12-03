@@ -2,58 +2,58 @@ TCGAPagesStream = require "../tcgaPagesStream"
 
 describe "TCGA Pages Stream", ->
 
-	it "should be a stream.", ->
-		pagesStream = new TCGAPagesStream()
-		expect(pagesStream.pipe).toBeDefined()
+    it "should be a stream.", ->
+        pagesStream = new TCGAPagesStream()
+        expect(pagesStream.pipe).toBeDefined()
 
-	it "accepts options", ->
-		options = a: "b", c: 1
-		pagesStream = new TCGAPagesStream options
-		expect(pagesStream.options).toEqual options
+    it "accepts options", ->
+        options = a: "b", c: 1
+        pagesStream = new TCGAPagesStream options
+        expect(pagesStream.options).toEqual options
 
-	it "understands a rootURL option.", ->
-		options = rootURL: "http://example.com"
-		pagesStream = new TCGAPagesStream options
-		expect(pagesStream.rootURL).toEqual options.rootURL
+    it "understands a rootURL option.", ->
+        options = rootURL: "http://example.com"
+        pagesStream = new TCGAPagesStream options
+        expect(pagesStream.rootURL).toEqual options.rootURL
 
-	it "initially has a paused queue with one item, the rootURL.", ->
-		options = rootURL: "http://example.com"
-		pagesStream = new TCGAPagesStream options
-		q = pagesStream._q
-		expect(q).toBeDefined()
-		expect(q.length()).toBe 1
-		expect(q.paused).toBe true
-		expect(q.tasks[0].data).toBe options.rootURL
+    it "initially has a paused queue with one item, the rootURL.", ->
+        options = rootURL: "http://example.com"
+        pagesStream = new TCGAPagesStream options
+        q = pagesStream._q
+        expect(q).toBeDefined()
+        expect(q.length()).toBe 1
+        expect(q.paused).toBe true
+        expect(q.tasks[0].data).toBe options.rootURL
 
-	describe "_read method", ->
+    describe "_read method", ->
 
-	    request = require "request"
+        request = require "request"
 
-	    pagesStream = {}
-	    options = rootURL: "http://example.com"
+        pagesStream = {}
+        options = rootURL: "http://example.com"
 
-	    beforeEach ->
-	        pagesStream = new TCGAPagesStream options
+        beforeEach ->
+            pagesStream = new TCGAPagesStream options
 
-	    it "method reads from the rootURL", ->
-	        spy = spyOn request, "get"
-	            .andCallFake (options, callback) ->
-	                callback? null, {request: uri: href: options.uri}, "Body"
-	        pagesStream._read()
-	        expect(spy).toHaveBeenCalled()
-	        expect(spy.mostRecentCall.args[0].uri).toEqual options.rootURL
-	        expect(spy.calls.length).toEqual 1
+        it "method reads from the rootURL", ->
+            spy = spyOn request, "get"
+                .andCallFake (options, callback) ->
+                    callback? null, {request: uri: href: options.uri}, "Body"
+            pagesStream._read()
+            expect(spy).toHaveBeenCalled()
+            expect(spy.mostRecentCall.args[0].uri).toEqual options.rootURL
+            expect(spy.calls.length).toEqual 1
 
-	    it "queues links to subdirectories for reading.", (done) ->
-	    	spy = spyOn pagesStream._q, "push"
-	    		.andCallThrough()
-	    	spyOn request, "get"
-	            .andCallFake (options, callback) ->
-	                callback? null, {request: uri: href: options.uri}, rootHtml
-	        pagesStream._read ->
-	        	done()
-	        expect(spy).toHaveBeenCalled()
-	        expect(pagesStream._q.length()).toBe 3
+        it "queues links to subdirectories for reading.", (done) ->
+            spy = spyOn pagesStream._q, "push"
+                .andCallThrough()
+            spyOn request, "get"
+                .andCallFake (options, callback) ->
+                    callback? null, {request: uri: href: options.uri}, rootHtml
+            pagesStream._read ->
+                done()
+            expect(spy).toHaveBeenCalled()
+            expect(pagesStream._q.length()).toBe 3
 
 rootHtml = """
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
