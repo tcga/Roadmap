@@ -16,9 +16,14 @@ describe "TCGA Pages Stream", ->
 		pagesStream = new TCGAPagesStream options
 		expect(pagesStream.rootURL).toEqual options.rootURL
 
-	it "has a queue.", ->
-		pagesStream = new TCGAPagesStream()
-		expect(pagesStream._q).toBeDefined()
+	it "initially has a paused queue with one item, the rootURL.", ->
+		options = rootURL: "http://example.com"
+		pagesStream = new TCGAPagesStream options
+		q = pagesStream._q
+		expect(q).toBeDefined()
+		expect(q.length()).toBe 1
+		expect(q.paused).toBe true
+		expect(q.tasks[0].data).toBe options.rootURL
 
 	describe "_read method", ->
 
@@ -48,7 +53,7 @@ describe "TCGA Pages Stream", ->
 	        pagesStream._read ->
 	        	done()
 	        expect(spy).toHaveBeenCalled()
-	        expect(pagesStream._q.length()).toBe 2
+	        expect(pagesStream._q.length()).toBe 3
 
 rootHtml = """
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">

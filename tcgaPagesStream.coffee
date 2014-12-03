@@ -23,7 +23,9 @@ class TCGAPagesStore extends stream.Readable
 			done?()
 
 	_initializeQueue: ->
+		worker = (url, done) ->
 		@_q = async.queue (task, done) -> done()
 		@_q.pause()
+		if @rootURL then @_q.push(@rootURL)
 
 module.exports = TCGAPagesStore
