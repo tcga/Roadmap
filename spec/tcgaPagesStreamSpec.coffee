@@ -49,7 +49,7 @@ describe "TCGA Pages Stream", ->
                 .andCallThrough()
             getSpy = spyOn request, "get"
                 .andCallFake (new FakeGetter [rootHtml]).get
-            pagesStream._read ->
+            pagesStream._read null, ->
                 done()
             expect(spy).toHaveBeenCalled()
             expect(getSpy.calls.length).toBe 3
@@ -57,7 +57,7 @@ describe "TCGA Pages Stream", ->
         it "recursively queues links to deeper subdirectories", (done) ->
             getSpy = spyOn request, "get"
                 .andCallFake (new FakeGetter [rootHtml, accHtml]).get
-            pagesStream._read ->
+            pagesStream._read null, ->
                 done()
             expect(getSpy.calls.length).toBe 6
 

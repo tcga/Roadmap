@@ -10,7 +10,7 @@ class TCGAPagesStore extends stream.Readable
         @rootURL = @options?.rootURL
         @_initializeQueue()
 
-    _read: (done) ->
+    _read: (size, done) ->
         @_q.resume()
         done?()
 
