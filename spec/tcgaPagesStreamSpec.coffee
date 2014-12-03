@@ -48,7 +48,7 @@ describe "TCGA Pages Stream", ->
 	        pagesStream._read ->
 	        	done()
 	        expect(spy).toHaveBeenCalled()
-	        #expect(pagesStream._q.length()).toBe 2
+	        expect(pagesStream._q.length()).toBe 2
 
 rootHtml = """
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
