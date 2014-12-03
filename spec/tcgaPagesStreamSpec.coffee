@@ -33,3 +33,4 @@ describe "TCGA Pages Stream _read method", ->
         pagesStream._read()
         expect(spy).toHaveBeenCalled()
         expect(spy.mostRecentCall.args[0]).toEqual options.rootURL
+        expect(spy.calls.length).toEqual 1
