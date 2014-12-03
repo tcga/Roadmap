@@ -47,18 +47,26 @@ describe "TCGA Pages Stream", ->
         it "queues links to subdirectories for reading.", (done) ->
             spy = spyOn pagesStream._q, "push"
                 .andCallThrough()
-            spyOn request, "get"
+            getSpy = spyOn request, "get"
                 .andCallFake (new FakeGetter [rootHtml]).get
             pagesStream._read ->
                 done()
             expect(spy).toHaveBeenCalled()
-            expect(pagesStream._q.length()).toBe 3
+            expect(getSpy.calls.length).toBe 3
+
+        it "recursively queues links to deeper subdirectories", (done) ->
+            getSpy = spyOn request, "get"
+                .andCallFake (new FakeGetter [rootHtml, accHtml]).get
+            pagesStream._read ->
+                done()
+            expect(getSpy.calls.length).toBe 6
 
 class FakeGetter
     constructor: (@responses) ->
         @count = 0
     get: (options, callback) => # fat arrow prevents rebinding
-        callback? null, {request: uri: href: options.uri}, @responses[@count++]
+        response = @responses[@count++] or "Body"
+        callback? null, {request: uri: href: options.uri}, response
 
 rootHtml = """
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
@@ -73,6 +81,22 @@ rootHtml = """
       <a href="README_MAF.txt">README_MAF.txt</a>                                 2014-01-09 10:00  437   
       <a href="acc/">acc/</a>                                           2013-12-05 15:42    -   
       <a href="blca/">blca/</a>                                          2012-04-03 19:57    -   
+<hr></pre>
+</body></html>
+"""
+
+accHtml = """
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+ <head>
+  <title>Index of /tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/acc</title>
+ </head>
+ <body>
+<h1>Index of /tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/acc</h1>
+<pre>      <a href="?C=N;O=D">Name</a>                                                 <a href="?C=M;O=A">Last modified</a>      <a href="?C=S;O=A">Size</a>  <hr>      <a href="/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/">Parent Directory</a>                                                          -   
+      <a href="bcr/">bcr/</a>                                                 2013-05-13 15:23    -   
+      <a href="cgcc/">cgcc/</a>                                                2014-08-05 12:57    -   
+      <a href="gsc/">gsc/</a>                                                 2014-03-03 22:37    -   
 <hr></pre>
 </body></html>
 """
