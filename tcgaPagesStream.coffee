@@ -26,6 +26,4 @@ class TCGAPagesStore extends stream.Readable
 		@_q = async.queue (task, done) -> done()
 		@_q.pause()
 
-
-
 module.exports = TCGAPagesStore
