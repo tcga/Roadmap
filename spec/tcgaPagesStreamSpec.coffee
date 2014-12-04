@@ -71,6 +71,17 @@ describe "TCGA Pages Stream", ->
                 expect(pagesStream.push.calls.length).toBe 6
                 done()
 
+        it "pauses the queue if @push returns false", (done) ->
+            spyOn pagesStream, "push"
+                .andReturn false
+            spyOn request, "get"
+                .andCallFake (new FakeGetter [rootHtml, accHtml]).get
+            pagesStream._read null, ->
+                expect(pagesStream.push).toHaveBeenCalled()
+                expect(pagesStream.push.calls.length).toBe 1
+                expect(pagesStream._q.paused).toBe true
+                done()
+
 class FakeGetter
     constructor: (@responses) ->
         @count = 0
