@@ -16,18 +16,20 @@ class TCGAPagesStore extends stream.Readable
 
     _initializeQueue: ->
         worker = (uri, done) =>
-            request.get uri: @rootURL, (err, resp, body) =>
+            console.log "Now loading:", uri
+            request.get uri: uri, (err, resp, body) =>
                 $     = cheerio.load body
                 uri   = resp.request.uri.href
                 links = $('pre a')
                     .slice 4
                     .filter (i, el) -> $(el).attr("href").slice(-1) is "/"
-                    .map (i,el) -> "#{uri}/#{$(el).attr("href")}"
+                    .map (i,el) -> "#{uri}#{$(el).attr("href")}"
                     .get()
                 @_q.push links if links.length > 0
                 @_q.pause() unless @push({uri: uri, body: body})
                 done?()
         @_q = async.queue worker
+        @_q.drain = => @push null #Signal EOF when the queue is drained.
         @_q.pause()
         if @rootURL then @_q.push(@rootURL)
 
