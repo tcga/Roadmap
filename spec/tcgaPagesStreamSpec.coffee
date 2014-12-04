@@ -61,6 +61,16 @@ describe "TCGA Pages Stream", ->
                 done()
             expect(getSpy.calls.length).toBe 6
 
+        it "calls @push with the returned objects", (done) ->
+            spyOn pagesStream, "push"
+                .andReturn true
+            spyOn request, "get"
+                .andCallFake (new FakeGetter [rootHtml, accHtml]).get
+            pagesStream._read null, ->
+                expect(pagesStream.push).toHaveBeenCalled()
+                expect(pagesStream.push.calls.length).toBe 6
+                done()
+
 class FakeGetter
     constructor: (@responses) ->
         @count = 0

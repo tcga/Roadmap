@@ -25,7 +25,7 @@ class TCGAPagesStore extends stream.Readable
                     .map (i,el) -> "#{uri}/#{$(el).attr("href")}"
                     .get()
                 @_q.push links if links.length > 0
-                # @_q.pause() unless @push({uri: uri, body: body})
+                @_q.pause() unless @push({uri: uri, body: body})
                 done?()
         @_q = async.queue worker
         @_q.pause()
