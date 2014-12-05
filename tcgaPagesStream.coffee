@@ -25,7 +25,8 @@ class TCGAPagesStore extends stream.Readable
                     .filter (i, el) -> $(el).attr("href").slice(-1) is "/"
                     .map (i,el) -> "#{uri}#{$(el).attr("href")}"
                     .get()
-                @_q.push links if links.length > 0
+                if links.length > 0
+                    if not @options.depthFirst then @_q.push links else @_q.unshift links
                 @_q.pause() unless @push({uri: uri, body: body})
                 done?()
         @_q = async.queue worker

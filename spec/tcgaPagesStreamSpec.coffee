@@ -25,6 +25,21 @@ describe "TCGA Pages Stream", ->
         expect(q.paused).toBe true
         expect(q.tasks[0].data).toBe options.rootURL
 
+    describe "options", ->
+
+        request = require "request"
+
+        it "depthFirst unshifts into the queue instead of pushing.", ->
+            options = rootURL: "http://example.com", depthFirst: true
+            pagesStream = new TCGAPagesStream options
+            spyOn pagesStream._q, "unshift"
+                .andCallThrough()
+            spyOn request, "get"
+                .andCallFake (new FakeGetter [rootHtml]).get
+            pagesStream._read()
+            expect(pagesStream._q.unshift).toHaveBeenCalled()
+            expect(request.get.calls.length).toBe 3
+
     describe "_read method", ->
 
         request = require "request"
