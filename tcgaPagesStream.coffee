@@ -16,7 +16,7 @@ class TCGAPagesStore extends stream.Readable
 
     _initializeQueue: ->
         worker = (uri, done) =>
-            console.log "Now loading:", uri
+            if @options.verbose then console.log "Now loading:", uri
             request.get uri: uri, (err, resp, body) =>
                 $     = cheerio.load body
                 uri   = resp.request.uri.href
