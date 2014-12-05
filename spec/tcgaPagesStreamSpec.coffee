@@ -87,6 +87,9 @@ describe "TCGA Pages Stream", ->
             expect(getSpy.calls.length).toBe 6
 
         it "calls @push with the returned objects", (done) ->
+            expectedPush =
+                uri: options.rootURL
+                body: rootHtml
             spyOn pagesStream, "push"
                 .andReturn true
             spyOn request, "get"
@@ -94,6 +97,7 @@ describe "TCGA Pages Stream", ->
             pagesStream._read null, ->
                 expect(pagesStream.push).toHaveBeenCalled()
                 expect(pagesStream.push.calls.length).toBe 7
+                expect(pagesStream.push.calls[0].args[0]).toEqual expectedPush
                 done()
 
         it "pauses the queue if @push returns false", (done) ->
