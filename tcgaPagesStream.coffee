@@ -7,7 +7,7 @@ cheerio = require "cheerio"
 class TCGAPagesStore extends stream.Readable
     constructor: (@options) ->
         super objectMode: true
-        @rootURL = @options?.rootURL
+        @rootURL = @options?.rootURL or "https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/"
         @_initializeQueue()
 
     _read: (size, done) ->
