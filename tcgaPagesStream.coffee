@@ -20,6 +20,7 @@ class TCGAPagesStore extends stream.Readable
             request.get uri: uri, (err, resp, body) =>
                 @_queueLinks uri, body
                 output = uri: uri, body: body
+                if @options.stringMode then output = JSON.stringify output, null, 2
                 @_q.pause() unless @push output
                 done?()
         @_q = async.queue worker

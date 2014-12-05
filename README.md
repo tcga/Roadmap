@@ -29,5 +29,6 @@ tcgaPagesStream.pipe(...)
 * `depthFirst` - perform a depth-first traversal of the directory tree.
 * `once` - only traverse the tree to the first leaf.
 * `verbose` - console.log's each URL as it's being processed.
+* `stringMode` - stringify each output object before streaming it out.
 
 [tcga]: https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/
