@@ -26,6 +26,7 @@ class TCGAPagesStore extends stream.Readable
                     .map (i,el) -> "#{uri}#{$(el).attr("href")}"
                     .get()
                 if links.length > 0
+                    if @options.once then links = links.slice 0,1
                     if not @options.depthFirst then @_q.push links else @_q.unshift links
                 @_q.pause() unless @push({uri: uri, body: body})
                 done?()

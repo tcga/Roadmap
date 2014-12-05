@@ -25,7 +25,7 @@ describe "TCGA Pages Stream", ->
         expect(q.paused).toBe true
         expect(q.tasks[0].data).toBe options.rootURL
 
-    describe "options", ->
+    describe "option", ->
 
         request = require "request"
 
@@ -39,6 +39,16 @@ describe "TCGA Pages Stream", ->
             pagesStream._read()
             expect(pagesStream._q.unshift).toHaveBeenCalled()
             expect(request.get.calls.length).toBe 3
+
+        it "once only descends into the first subdirectory of each page.", ->
+            options = rootURL: "http://example.com", once: true
+            pagesStream = new TCGAPagesStream options
+            spyOn pagesStream._q, "push"
+                .andCallThrough()
+            spyOn request, "get"
+                .andCallFake (new FakeGetter [rootHtml]).get
+            pagesStream._read()
+            expect(pagesStream._q.push.calls.length).toBe 1
 
     describe "_read method", ->
 
