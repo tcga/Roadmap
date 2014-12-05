@@ -1,5 +1,4 @@
 stream  = require "stream"
-util    = require "util"
 request = require "request"
 async   = require "async"
 cheerio = require "cheerio"
