@@ -18,11 +18,9 @@ class TCGAPagesStore extends stream.Readable
         worker = (uri, done) =>
             if @options.verbose then console.log "Now loading:", uri
             request.get uri: uri, (err, resp, body) =>
-                links = @_getLinks uri, body
-                if links.length > 0
-                    if @options.once then links = links.slice 0,1
-                    if not @options.depthFirst then @_q.push links else @_q.unshift links
-                @_q.pause() unless @push({uri: uri, body: body})
+                @_queueLinks uri, body
+                output = uri: uri, body: body
+                @_q.pause() unless @push output
                 done?()
         @_q = async.queue worker
         @_q.drain = => @push null #Signal EOF when the queue is drained.
@@ -36,5 +34,11 @@ class TCGAPagesStore extends stream.Readable
             .filter (i, el) -> $(el).attr("href").slice(-1) is "/"
             .map (i,el) -> "#{uri}#{$(el).attr("href")}"
             .get()
+
+    _queueLinks: (uri, body) ->
+        links = @_getLinks uri, body
+        if links.length > 0
+            if @options.once then links = links.slice 0,1
+            if not @options.depthFirst then @_q.push links else @_q.unshift links
 
 module.exports = TCGAPagesStore
