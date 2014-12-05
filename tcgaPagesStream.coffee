@@ -18,13 +18,7 @@ class TCGAPagesStore extends stream.Readable
         worker = (uri, done) =>
             if @options.verbose then console.log "Now loading:", uri
             request.get uri: uri, (err, resp, body) =>
-                $     = cheerio.load body
-                uri   = resp.request.uri.href
-                links = $('pre a')
-                    .slice 4
-                    .filter (i, el) -> $(el).attr("href").slice(-1) is "/"
-                    .map (i,el) -> "#{uri}#{$(el).attr("href")}"
-                    .get()
+                links = @_getLinks uri, body
                 if links.length > 0
                     if @options.once then links = links.slice 0,1
                     if not @options.depthFirst then @_q.push links else @_q.unshift links
@@ -34,5 +28,13 @@ class TCGAPagesStore extends stream.Readable
         @_q.drain = => @push null #Signal EOF when the queue is drained.
         @_q.pause()
         if @rootURL then @_q.push(@rootURL)
+
+    _getLinks: (uri, body) ->
+        $     = cheerio.load body
+        links = $('pre a')
+            .slice 4
+            .filter (i, el) -> $(el).attr("href").slice(-1) is "/"
+            .map (i,el) -> "#{uri}#{$(el).attr("href")}"
+            .get()
 
 module.exports = TCGAPagesStore
