@@ -1,4 +1,5 @@
 TCGAPagesStream = require "../tcgaPagesStream"
+FakeGetter      = require "./helpers/fakeGetter"
 
 describe "TCGA Pages Stream", ->
 
@@ -110,13 +111,6 @@ describe "TCGA Pages Stream", ->
                 expect(pagesStream.push.calls.length).toBe 1
                 expect(pagesStream._q.paused).toBe true
                 done()
-
-class FakeGetter
-    constructor: (@responses) ->
-        @count = 0
-    get: (options, callback) => # fat arrow prevents rebinding
-        response = @responses[@count++] or "Body"
-        callback? null, {request: uri: href: options.uri}, response
 
 rootHtml = """
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
